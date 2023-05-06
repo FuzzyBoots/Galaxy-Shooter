@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4882057062099814927}
   - component: {fileID: 4882057062099814926}
   - component: {fileID: 4882057062099814925}
-  - component: {fileID: 939725063550753841}
   - component: {fileID: 9135316408123220133}
   m_Layer: 0
   m_Name: Laser
@@ -30,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 4882057062099814924}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -100,22 +99,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &939725063550753841
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4882057062099814924}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &9135316408123220133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,3 +111,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59e438d62b0883340b316ed790b55a1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _laserSpeed: 10
+  _destroyDistance: 10
