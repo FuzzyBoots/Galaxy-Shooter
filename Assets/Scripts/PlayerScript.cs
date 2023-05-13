@@ -24,6 +24,8 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private float _fireRate = 0.5f;  // half a second
     private float _canFire = 0;
+    [SerializeField]
+    private int _lives = 3;
 
     // Start is called before the first frame update
     void Start()
@@ -57,5 +59,18 @@ public class PlayerScript : MonoBehaviour
         this.transform.Translate(Vector3.up * verticalInput * _speed * Time.deltaTime);
 
         transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, LBound, RBound), Mathf.Clamp(this.transform.position.y, DBound, UBound), this.transform.position.z);
+    }
+
+    public void Damage()
+    {
+        _lives--;
+
+        if (_lives < 1)
+        {
+            SpawnManager spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+            spawnManager.StopSpawning();
+
+            Destroy(this.gameObject);
+        }
     }
 }
