@@ -27,10 +27,14 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private int _lives = 3;
 
+    GameObject _laserContainer;
+
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.position = new Vector3(0f, -4f, 0f);
+        this.transform.position = new Vector3(0f, -6f, 0f);
+
+        _laserContainer = this.gameObject.transform.GetChild(0).gameObject;
     }
 
     // Update is called once per frame
@@ -46,6 +50,7 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
             GameObject laser = Instantiate(laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+            laser.transform.parent = _laserContainer.transform;
             _canFire= Time.time + _fireRate;
         }
     }
