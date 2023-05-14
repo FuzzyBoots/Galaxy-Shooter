@@ -35,7 +35,6 @@ public class EnemyScript : MonoBehaviour
 
         if (other.tag == "Player")
         {
-            Debug.Log("Collided with Player");
             other.transform.GetComponent<PlayerScript>()?.Damage();
             Destroy(this.gameObject);
         }
