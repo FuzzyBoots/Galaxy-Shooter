@@ -20,6 +20,8 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private GameObject _laserPrefab;
+    [SerializeField]
+    private GameObject _tripleLaserPrefab;
 
     [SerializeField]
     private float _fireRate = 0.5f;  // half a second
@@ -28,8 +30,11 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private int _lives = 3;
 
-    private Transform _laserContainer;
+    [SerializeField]
+    private bool _tripleShotActive = false;
 
+    private Transform _laserContainer;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -50,7 +55,14 @@ public class PlayerScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
-            GameObject laser = Instantiate(_laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+            GameObject laser;
+            if (_tripleShotActive)
+            {
+                laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+            } else
+            {
+                laser = Instantiate(_laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+            }
             laser.transform.parent = _laserContainer;
             _canFire= Time.time + _fireRate;
         }
@@ -67,6 +79,18 @@ public class PlayerScript : MonoBehaviour
         transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, _lBound, _rBound), Mathf.Clamp(this.transform.position.y, _dBound, _uBound), this.transform.position.z);
     }
 
+    public void TurnOnTripleShot()
+    {
+        _tripleShotActive = true;
+        StartCoroutine(TurnOffTripleShot());
+    }
+
+    IEnumerator TurnOffTripleShot()
+    {
+        yield return new WaitForSeconds(3.0f);
+        _tripleShotActive = false;
+    }
+
     public void Damage()
     {
         _lives--;
@@ -78,5 +102,10 @@ public class PlayerScript : MonoBehaviour
 
             Destroy(this.gameObject);
         }
+    }
+
+    public static explicit operator PlayerScript(GameObject v)
+    {
+        throw new NotImplementedException();
     }
 }
