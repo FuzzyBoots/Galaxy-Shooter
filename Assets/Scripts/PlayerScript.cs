@@ -31,7 +31,7 @@ public class PlayerScript : MonoBehaviour
     private int _lives = 3;
 
     [SerializeField]
-    private bool _tripleShotActive = false;
+    private float _tripleShotTime = 0;
 
     private Transform _laserContainer;
     
@@ -56,8 +56,9 @@ public class PlayerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
             GameObject laser;
-            if (_tripleShotActive)
+            if (Time.time < _tripleShotTime)
             {
+                Debug.Log("Triple Laser");
                 laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
             } else
             {
@@ -81,14 +82,7 @@ public class PlayerScript : MonoBehaviour
 
     public void TurnOnTripleShot()
     {
-        _tripleShotActive = true;
-        StartCoroutine(TurnOffTripleShot());
-    }
-
-    IEnumerator TurnOffTripleShot()
-    {
-        yield return new WaitForSeconds(3.0f);
-        _tripleShotActive = false;
+        _tripleShotTime = Time.time + 3.0f;
     }
 
     public void Damage()
@@ -98,7 +92,7 @@ public class PlayerScript : MonoBehaviour
         if (_lives < 1)
         {
             SpawnManager spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
-            spawnManager.StopSpawning();
+            spawnManager.StopSpawningEnemies();
 
             Destroy(this.gameObject);
         }

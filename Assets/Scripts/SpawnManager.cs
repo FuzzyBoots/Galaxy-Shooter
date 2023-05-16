@@ -5,25 +5,28 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject enemyPrefab;
-    private bool _coroutineActive = false;
+    [SerializeField] private GameObject powerupPrefab;
+    private bool _enemySpawnCoroutineActive = false;
 
     [SerializeField]
     private bool _spawnEnemies = true;
     
     [SerializeField] 
     private GameObject _enemyContainer;
-    private Coroutine _coroutine;
+    private bool _spawnPowerups = true;
+    private bool _powerupSpawnCoroutineActive = false;
 
     void Start()
     {
-        StartSpawning();
+        StartSpawningEnemies();
+        StartSpawningPowerups();
     }
 
     IEnumerator SpawnEnemies()
     {
-        if (_coroutineActive) { yield break;  }
+        if (_enemySpawnCoroutineActive) { yield break;  }
 
-        _coroutineActive = true;
+        _enemySpawnCoroutineActive = true;
         while (_spawnEnemies)
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
@@ -33,28 +36,65 @@ public class SpawnManager : MonoBehaviour
             yield return new WaitForSeconds(5.0f);
         }
 
-        _coroutineActive= false;
+        _enemySpawnCoroutineActive= false;
          
         yield break;
     }
 
-    void StartSpawning()
+    IEnumerator SpawnPowerups()
+    {
+        if (_powerupSpawnCoroutineActive) { yield break; }
+
+        _powerupSpawnCoroutineActive = true;
+        while (_spawnPowerups)
+        {
+            Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
+            GameObject powerup = Instantiate(powerupPrefab, spawnPosition, Quaternion.identity);
+            powerup.transform.parent = _enemyContainer.transform;
+
+            yield return new WaitForSeconds(Random.Range(3f, 7f));
+        }
+
+        _powerupSpawnCoroutineActive = false;
+
+        yield break;
+    }
+
+    void StartSpawningEnemies()
     {
         _spawnEnemies = true;
 
-        if (!_coroutineActive)
+        if (!_enemySpawnCoroutineActive)
         {
             // Restart the coroutine
-            _coroutine = StartCoroutine(SpawnEnemies());
+            StartCoroutine(SpawnEnemies());
         }
     }
 
-    public void StopSpawning()
+    public void StopSpawningEnemies()
     {
         _spawnEnemies = false;
 
         // Optionally force the coroutine to stop
         // I don't think this is needed at the time. If I did,
         // I'd probably want to delay doing so.
+    }
+
+    void StartSpawningPowerups()
+    {
+        _spawnPowerups= true;
+
+        if (!_powerupSpawnCoroutineActive)
+        {
+            // Restart the coroutine
+            StartCoroutine(SpawnPowerups());
+        }
+    }
+
+    public void StopSpawningPowerups()
+    {
+        _spawnPowerups = false;
+
+        // Optionally force the coroutine to stop
     }
 }
