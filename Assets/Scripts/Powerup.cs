@@ -1,12 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 
+
+
 public class Powerup : MonoBehaviour
-{
+{    enum PowerupEnum
+    {
+        TripleShot,
+        Speed,
+        Shield
+    }
+
     [SerializeField]
     float _powerupSpeed = 3f;
+
+    [SerializeField]
+    private PowerupEnum _powerupIdent;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,7 +42,24 @@ public class Powerup : MonoBehaviour
         if (collision.tag == "Player")
         {
             PlayerScript player = collision.transform.GetComponent<PlayerScript>();
-            player?.TurnOnTripleShot();
+            
+            switch (_powerupIdent)
+            {
+                case PowerupEnum.TripleShot:
+                    player?.TurnOnTripleShot();
+                    break;
+                case PowerupEnum.Speed:
+                    Debug.Log("Speed!");
+                    break;
+                case PowerupEnum.Shield:
+                    Debug.Log("Shield!");
+                    break;
+                default:
+                    Debug.Log("Unexpected!");
+                    break;
+            }
+            
+            
             Destroy(this.gameObject);
         }
     }
