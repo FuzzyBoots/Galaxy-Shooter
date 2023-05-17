@@ -10,6 +10,9 @@ public class PlayerScript : MonoBehaviour
     private float _speed = 3.5f;
 
     [SerializeField]
+    private float _speedBoost = 1.8f;
+
+    [SerializeField]
     private float _rBound = 8f;
     [SerializeField]
     private float _lBound = -8f;
@@ -30,9 +33,15 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private int _lives = 3;
 
-    [SerializeField]
     private float _tripleShotTime = 0;
+    private float _speedTime = 0;
 
+    [SerializeField]
+    private bool _shieldActive = false;
+
+    [SerializeField]
+    private GameObject _shieldVisualizer;
+    
     private Transform _laserContainer;
     
     // Start is called before the first frame update
@@ -74,19 +83,40 @@ public class PlayerScript : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        this.transform.Translate(Vector3.right * horizontalInput * _speed * Time.deltaTime);
-        this.transform.Translate(Vector3.up * verticalInput * _speed * Time.deltaTime);
+        float effectiveSpeed = (Time.time < _speedTime) ? _speed * _speedBoost : _speed;
+
+        this.transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
+        this.transform.Translate(Vector3.up * verticalInput * effectiveSpeed * Time.deltaTime);
 
         transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, _lBound, _rBound), Mathf.Clamp(this.transform.position.y, _dBound, _uBound), this.transform.position.z);
     }
 
-    public void TurnOnTripleShot()
+    public void TurnOnTripleShot(float _powerupDuration)
     {
-        _tripleShotTime = Time.time + 3.0f;
+        _tripleShotTime = Time.time + _powerupDuration;
+    }
+
+    public void TurnOnSpeed(float _powerupDuration)
+    {
+        _speedTime = Time.time + _powerupDuration;
+    }
+
+    public void SetShield(bool active)
+    {
+        _shieldActive = active;
+        _shieldVisualizer.SetActive(_shieldActive);
     }
 
     public void Damage()
     {
+        Debug.Log($"Shield active: {_shieldActive}");
+        if (_shieldActive)
+        {
+            // Tank the hit
+            Debug.Log("Bonk!");
+            SetShield(false);
+            return;
+        }
         _lives--;
 
         if (_lives < 1)
@@ -96,10 +126,5 @@ public class PlayerScript : MonoBehaviour
 
             Destroy(this.gameObject);
         }
-    }
-
-    public static explicit operator PlayerScript(GameObject v)
-    {
-        throw new NotImplementedException();
     }
 }

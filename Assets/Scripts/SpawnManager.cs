@@ -1,18 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private GameObject powerupPrefab;
-    private bool _enemySpawnCoroutineActive = false;
+    
+    [SerializeField]
+    private GameObject[] _powerups;
 
     [SerializeField]
     private bool _spawnEnemies = true;
-    
+    private bool _enemySpawnCoroutineActive = false;
+
     [SerializeField] 
     private GameObject _enemyContainer;
+
+    [SerializeField]
     private bool _spawnPowerups = true;
     private bool _powerupSpawnCoroutineActive = false;
 
@@ -49,7 +54,10 @@ public class SpawnManager : MonoBehaviour
         while (_spawnPowerups)
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
-            GameObject powerup = Instantiate(powerupPrefab, spawnPosition, Quaternion.identity);
+            int index = Random.Range(0, _powerups.Count());
+            Debug.Log($"Index: {index}");
+            GameObject randomPowerup = _powerups[index];
+            GameObject powerup = Instantiate(randomPowerup, spawnPosition, Quaternion.identity);
             powerup.transform.parent = _enemyContainer.transform;
 
             yield return new WaitForSeconds(Random.Range(3f, 7f));

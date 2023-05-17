@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -5,9 +6,10 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-
+[Serializable]
 public class Powerup : MonoBehaviour
-{    enum PowerupEnum
+{    
+    enum PowerupEnum
     {
         TripleShot,
         Speed,
@@ -16,6 +18,9 @@ public class Powerup : MonoBehaviour
 
     [SerializeField]
     float _powerupSpeed = 3f;
+
+    [SerializeField]
+    float _powerupDuration = 3f;
 
     [SerializeField]
     private PowerupEnum _powerupIdent;
@@ -46,13 +51,13 @@ public class Powerup : MonoBehaviour
             switch (_powerupIdent)
             {
                 case PowerupEnum.TripleShot:
-                    player?.TurnOnTripleShot();
+                    player?.TurnOnTripleShot(_powerupDuration);
                     break;
                 case PowerupEnum.Speed:
-                    Debug.Log("Speed!");
+                    player?.TurnOnSpeed(_powerupDuration);
                     break;
                 case PowerupEnum.Shield:
-                    Debug.Log("Shield!");
+                    player?.SetShield(true);
                     break;
                 default:
                     Debug.Log("Unexpected!");
