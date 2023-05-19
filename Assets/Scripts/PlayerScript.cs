@@ -43,13 +43,31 @@ public class PlayerScript : MonoBehaviour
     private GameObject _shieldVisualizer;
     
     private Transform _laserContainer;
-    
+
+    [SerializeField]
+    private int _score = 0;
+
+    [SerializeField]
+    UI_Manager _uiManager;
+
     // Start is called before the first frame update
     void Start()
     {
         this.transform.position = new Vector3(0f, -6f, 0f);
 
         _laserContainer = GameObject.Find("LaserContainer").transform;
+
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+
+        if (_laserContainer == null)
+        {
+            Debug.LogError("No Laser Container found!");
+        }
+
+        if (_uiManager == null)
+        {
+            Debug.LogError("No UI Manager found!");
+        }
     }
 
     // Update is called once per frame
@@ -117,7 +135,9 @@ public class PlayerScript : MonoBehaviour
             SetShield(false);
             return;
         }
+
         _lives--;
+        _uiManager.SetLives(_lives);
 
         if (_lives < 1)
         {
@@ -126,5 +146,11 @@ public class PlayerScript : MonoBehaviour
 
             Destroy(this.gameObject);
         }
+    }
+
+    public void AddScore(int score)
+    {
+        _score += score;
+        _uiManager.SetScore(_score);
     }
 }

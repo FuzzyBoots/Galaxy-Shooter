@@ -7,10 +7,15 @@ public class EnemyScript : MonoBehaviour
     private float _enemySpeed = 4f;
     private float _respawnDistance = -4f;
 
+    [SerializeField]
+    private PlayerScript _player;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (_player == null) { 
+            _player = GameObject.Find("Player").GetComponent<PlayerScript>();
+        }
     }
 
     // Update is called once per frame
@@ -29,6 +34,8 @@ public class EnemyScript : MonoBehaviour
         Debug.Log($"Collided with {other.tag}");
         if (other.tag == "Laser")
         {
+            _player?.AddScore(10);
+
             Destroy(other.gameObject);
             Destroy(this.gameObject);
         }
