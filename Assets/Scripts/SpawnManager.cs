@@ -23,12 +23,13 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
-        StartSpawningEnemies();
-        StartSpawningPowerups();
+        
     }
 
     IEnumerator SpawnEnemies()
     {
+        yield return new WaitForSeconds(Random.Range(1f, 2f));
+
         if (_enemySpawnCoroutineActive) { yield break;  }
 
         _enemySpawnCoroutineActive = true;
@@ -48,6 +49,8 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnPowerups()
     {
+        yield return new WaitForSeconds(Random.Range(1f, 2f));
+
         if (_powerupSpawnCoroutineActive) { yield break; }
 
         _powerupSpawnCoroutineActive = true;
@@ -66,6 +69,12 @@ public class SpawnManager : MonoBehaviour
         _powerupSpawnCoroutineActive = false;
 
         yield break;
+    }
+
+    public void StartSpawning()
+    {
+        StartSpawningEnemies();
+        StartSpawningPowerups();
     }
 
     void StartSpawningEnemies()

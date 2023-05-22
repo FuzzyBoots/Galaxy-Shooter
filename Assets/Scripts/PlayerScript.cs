@@ -101,12 +101,17 @@ public class PlayerScript : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        float effectiveSpeed = (Time.time < _speedTime) ? _speed * _speedBoost : _speed;
+        float effectiveSpeed = GetEffectiveSpeed();
 
-        this.transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
-        this.transform.Translate(Vector3.up * verticalInput * effectiveSpeed * Time.deltaTime);
+        transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
+        transform.Translate(Vector3.up * verticalInput * effectiveSpeed * Time.deltaTime);
 
         transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, _lBound, _rBound), Mathf.Clamp(this.transform.position.y, _dBound, _uBound), this.transform.position.z);
+    }
+
+    private float GetEffectiveSpeed()
+    {
+        return (Time.time < _speedTime) ? _speed * _speedBoost : _speed;
     }
 
     public void TurnOnTripleShot(float _powerupDuration)
@@ -143,6 +148,9 @@ public class PlayerScript : MonoBehaviour
         {
             SpawnManager spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
             spawnManager.StopSpawningEnemies();
+            spawnManager.StopSpawningPowerups();
+
+            _uiManager.DisplayGameOver();
 
             Destroy(this.gameObject);
         }
