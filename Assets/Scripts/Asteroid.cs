@@ -7,12 +7,17 @@ public class Asteroid : MonoBehaviour
     [SerializeField] float _rotateSpeed = 3f;
 
     [SerializeField] GameObject _explosion;
-    // Start is called before the first frame update
+    
+    private ExplosionManager _explosionManager;
 
     [SerializeField] SpawnManager _spawnManager;
+    
+    // Start is called before the first frame update
     void Start()
     {
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+
+        _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
 
         if (_spawnManager == null)
         {
@@ -41,6 +46,8 @@ public class Asteroid : MonoBehaviour
             {
                 Debug.Log("No Collider2D found");
             }
+
+            _explosionManager.PlayExplosion();
 
             _spawnManager.StartSpawning();
 

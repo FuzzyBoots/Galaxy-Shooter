@@ -23,7 +23,6 @@ public class SpawnManager : MonoBehaviour
 
     void Start()
     {
-        
     }
 
     IEnumerator SpawnEnemies()
@@ -38,7 +37,7 @@ public class SpawnManager : MonoBehaviour
             Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
             GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             enemy.transform.parent = _enemyContainer.transform;
-
+            
             yield return new WaitForSeconds(5.0f);
         }
 

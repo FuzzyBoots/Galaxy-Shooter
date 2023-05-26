@@ -25,6 +25,8 @@ public class Powerup : MonoBehaviour
     [SerializeField]
     private PowerupEnum _powerupIdent;
 
+    [SerializeField] AudioClip _powerupClip;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,6 +49,9 @@ public class Powerup : MonoBehaviour
         if (collision.tag == "Player")
         {
             PlayerScript player = collision.transform.GetComponent<PlayerScript>();
+
+            Debug.Log("Playing Sound");
+            AudioSource.PlayClipAtPoint(_powerupClip, transform.position);
             
             switch (_powerupIdent)
             {
@@ -64,6 +69,8 @@ public class Powerup : MonoBehaviour
                     break;
             }
             
+            SpriteRenderer _renderer = gameObject.GetComponent<SpriteRenderer>();
+            _renderer.enabled = false;
             
             Destroy(this.gameObject);
         }

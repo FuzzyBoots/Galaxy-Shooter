@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class PlayerScript : MonoBehaviour
     private GameObject _laserPrefab;
     [SerializeField]
     private GameObject _tripleLaserPrefab;
+    [SerializeField]
+    private GameObject _firePrefab;
 
     [SerializeField]
     private float _fireRate = 0.5f;  // half a second
@@ -47,8 +50,17 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private int _score = 0;
 
-    [SerializeField]
     UI_Manager _uiManager;
+
+    [SerializeField]
+    private AudioClip _laserClip;
+
+    private AudioSource _audioSource;
+
+    private ExplosionManager _explosionManager;
+    
+    [SerializeField]
+    private GameObject _explosion;
 
     // Start is called before the first frame update
     void Start()
@@ -59,6 +71,10 @@ public class PlayerScript : MonoBehaviour
 
         _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
 
+        _audioSource = GetComponent<AudioSource>();
+
+        _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
+
         if (_laserContainer == null)
         {
             Debug.LogError("No Laser Container found!");
@@ -67,6 +83,16 @@ public class PlayerScript : MonoBehaviour
         if (_uiManager == null)
         {
             Debug.LogError("No UI Manager found!");
+        }
+
+        if (_audioSource == null)
+        {
+            Debug.LogError("No Audio Source found!");
+        }
+
+        if (_explosionManager == null)
+        {
+            Debug.LogError("No Explosion Manager found!");
         }
     }
 
@@ -93,6 +119,8 @@ public class PlayerScript : MonoBehaviour
             }
             laser.transform.parent = _laserContainer;
             _canFire= Time.time + _fireRate;
+
+            _audioSource.PlayOneShot(_laserClip);
         }
     }
 
@@ -100,7 +128,7 @@ public class PlayerScript : MonoBehaviour
     {
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
-
+        
         float effectiveSpeed = GetEffectiveSpeed();
 
         transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
@@ -136,7 +164,6 @@ public class PlayerScript : MonoBehaviour
         if (_shieldActive)
         {
             // Tank the hit
-            Debug.Log("Bonk!");
             SetShield(false);
             return;
         }
@@ -144,15 +171,31 @@ public class PlayerScript : MonoBehaviour
         _lives--;
         _uiManager.SetLives(_lives);
 
+        if (_lives == 2)
+        {
+            GameObject fire = Instantiate(_firePrefab, transform.position, Quaternion.identity);
+            
+            fire.transform.SetParent(transform);
+            fire.transform.Translate(new Vector3(-0.62f, -1.7f, 0f));
+        } else if (_lives == 1) {
+            GameObject fire = Instantiate(_firePrefab, transform.position, Quaternion.identity);
+
+            fire.transform.SetParent(transform);
+            fire.transform.Translate(new Vector3(0.62f, -1.7f, 0f));
+        }
+
         if (_lives < 1)
         {
             SpawnManager spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
             spawnManager.StopSpawningEnemies();
             spawnManager.StopSpawningPowerups();
 
+            Instantiate(_explosion, this.transform.position, Quaternion.identity);
+            _explosionManager.PlayExplosion();
+
             _uiManager.DisplayGameOver();
 
-            Destroy(this.gameObject);
+            Destroy(this.gameObject, 0.3f);
         }
     }
 

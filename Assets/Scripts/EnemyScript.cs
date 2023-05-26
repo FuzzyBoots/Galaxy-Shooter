@@ -12,6 +12,8 @@ public class EnemyScript : MonoBehaviour
 
     private Animator _animator;
 
+    private ExplosionManager _explosionManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +26,8 @@ public class EnemyScript : MonoBehaviour
                 Debug.LogError("Could not find the player!");
             }
         }
+
+        _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
 
         _animator = GetComponent<Animator>();
 
@@ -51,7 +55,9 @@ public class EnemyScript : MonoBehaviour
             _player?.AddScore(10);
 
             _animator.SetTrigger("OnEnemyDeath");
-            _enemySpeed = 0f;
+            _enemySpeed = 0.1f;
+
+            _explosionManager.PlayExplosion();
 
             Collider2D collider = GetComponent<Collider2D>();
             if (collider != null)
@@ -70,8 +76,12 @@ public class EnemyScript : MonoBehaviour
 
         if (other.tag == "Player")
         {
+            _animator.SetTrigger("OnEnemyDeath");
+            _enemySpeed = 0.1f;
+
+            _explosionManager.PlayExplosion();
             other.transform.GetComponent<PlayerScript>()?.Damage();
-            Destroy(this.gameObject);
+            Destroy(this.gameObject, 2.8f);
         }
     }
 
