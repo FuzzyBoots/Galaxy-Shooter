@@ -23,6 +23,11 @@ public class Asteroid : MonoBehaviour
         {
             Debug.LogError("No Spawn Manager found!");
         }
+
+        if (_explosionManager == null)
+        {
+            Debug.LogError("No Explosion Manager found!");
+        }
     }
 
     // Update is called once per frame

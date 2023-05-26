@@ -34,6 +34,11 @@ public class EnemyScript : MonoBehaviour
         if (_animator == null ) {
             Debug.LogError("Could not find enemy animation");
         }
+
+        if (_explosionManager == null)
+        {
+            Debug.LogError("No Explosion Manager found!");
+        }
     }
 
     // Update is called once per frame
