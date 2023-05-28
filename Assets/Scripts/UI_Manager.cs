@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class UI_Manager : MonoBehaviour
 {
@@ -44,6 +47,18 @@ public class UI_Manager : MonoBehaviour
         {
             string currentSceneName = SceneManager.GetActiveScene().name;
             SceneManager.LoadScene(currentSceneName);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape)) { 
+            #if (UNITY_EDITOR)
+                 UnityEditor.EditorApplication.isPlaying = false;
+            #elif (UNITY_STANDALONE) 
+                Application.Quit();
+            #elif (UNITY_WEBGL)
+                // Doesn't actually fix the problem... and apparently closing the 
+                // tab in code was eliminated due to security issues.
+                Application.OpenURL("about:blank");
+            #endif
         }
     }
 

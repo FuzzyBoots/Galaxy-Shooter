@@ -21,7 +21,6 @@ public class ExplosionManager : MonoBehaviour
 
     public void PlayExplosion()
     {
-        Debug.Log("Playing Explosion");
         _audioSource.PlayOneShot(_explosionClip);
     }
 }

@@ -14,6 +14,14 @@ public class EnemyScript : MonoBehaviour
 
     private ExplosionManager _explosionManager;
 
+    private bool _isDead = false;
+
+    [SerializeField]
+    private GameObject _laserPrefab;
+
+    private float _fireRate = 3f;
+    private float _canFire = -1f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -44,12 +52,52 @@ public class EnemyScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CalculateMovement();
+
+        if (Time.time > _canFire)
+        {
+            _fireRate = Random.Range(3f, 7f);
+            _canFire = Time.time + _fireRate;
+
+            GameObject enemyLaser = Instantiate(_laserPrefab, this.transform.position, Quaternion.identity);
+            Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
+            
+            foreach (Laser laser in lasers)
+            {
+                laser.AssignEnemyLaser();
+            }
+        }
+    }
+
+    private void CalculateMovement()
+    {
         this.transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
 
-        if (this.transform.position.y < _respawnDistance)
+        if (this.transform.position.y < _respawnDistance && !_isDead)
         {
             this.transform.position = new Vector3(Random.Range(-8f, 8f), 8f, 0f);
         }
+    }
+
+    private void Die()
+    {
+        _animator.SetTrigger("OnEnemyDeath");
+
+        _explosionManager.PlayExplosion();
+
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null)
+        {
+            collider.enabled = false;
+        }
+        else
+        {
+            Debug.Log("No Collider2D found");
+        }
+
+        _isDead = true;
+
+        Destroy(this.gameObject, 2.8f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -59,34 +107,16 @@ public class EnemyScript : MonoBehaviour
         {
             _player?.AddScore(10);
 
-            _animator.SetTrigger("OnEnemyDeath");
-            _enemySpeed = 0.1f;
-
-            _explosionManager.PlayExplosion();
-
-            Collider2D collider = GetComponent<Collider2D>();
-            if (collider != null)
-            {
-                collider.enabled = false;
-            }
-            else
-            {
-                Debug.Log("No Collider2D found");
-            }
-
             Destroy(other.gameObject);
 
-            Destroy(this.gameObject, 2.8f);
+            Die();
         }
 
         if (other.tag == "Player")
         {
-            _animator.SetTrigger("OnEnemyDeath");
-            _enemySpeed = 0.1f;
-
-            _explosionManager.PlayExplosion();
             other.transform.GetComponent<PlayerScript>()?.Damage();
-            Destroy(this.gameObject, 2.8f);
+
+            Die();
         }
     }
 

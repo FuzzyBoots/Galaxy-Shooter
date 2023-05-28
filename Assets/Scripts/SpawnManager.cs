@@ -59,8 +59,7 @@ public class SpawnManager : MonoBehaviour
             int index = Random.Range(0, _powerups.Count());
             
             GameObject randomPowerup = _powerups[index];
-            GameObject powerup = Instantiate(randomPowerup, spawnPosition, Quaternion.identity);
-            powerup.transform.parent = _enemyContainer.transform;
+            Instantiate(randomPowerup, spawnPosition, Quaternion.identity);
 
             yield return new WaitForSeconds(Random.Range(3f, 7f));
         }

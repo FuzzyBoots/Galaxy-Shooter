@@ -111,7 +111,6 @@ public class PlayerScript : MonoBehaviour
             GameObject laser;
             if (Time.time < _tripleShotTime)
             {
-                Debug.Log("Triple Laser");
                 laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
             } else
             {
@@ -160,7 +159,6 @@ public class PlayerScript : MonoBehaviour
 
     public void Damage()
     {
-        Debug.Log($"Shield active: {_shieldActive}");
         if (_shieldActive)
         {
             // Tank the hit

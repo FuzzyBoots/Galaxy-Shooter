@@ -49,7 +49,7 @@ public class Asteroid : MonoBehaviour
             }
             else
             {
-                Debug.Log("No Collider2D found");
+                Debug.Log("No Collider2D found, could not disable");
             }
 
             _explosionManager.PlayExplosion();

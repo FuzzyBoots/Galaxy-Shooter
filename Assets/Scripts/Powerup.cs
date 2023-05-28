@@ -50,7 +50,6 @@ public class Powerup : MonoBehaviour
         {
             PlayerScript player = collision.transform.GetComponent<PlayerScript>();
 
-            Debug.Log("Playing Sound");
             AudioSource.PlayClipAtPoint(_powerupClip, transform.position);
             
             switch (_powerupIdent)
@@ -65,7 +64,7 @@ public class Powerup : MonoBehaviour
                     player?.SetShield(true);
                     break;
                 default:
-                    Debug.Log("Unexpected!");
+                    Debug.LogError("Unexpected Powerup type");
                     break;
             }
             
