@@ -61,7 +61,7 @@ public class Powerup : MonoBehaviour
                     player?.TurnOnSpeed(_powerupDuration);
                     break;
                 case PowerupEnum.Shield:
-                    player?.SetShield(true);
+                    player?.AdjustShield(3);
                     break;
                 default:
                     Debug.LogError("Unexpected Powerup type");

@@ -39,7 +39,8 @@ public class EnemyScript : MonoBehaviour
 
         _animator = GetComponent<Animator>();
 
-        if (_animator == null ) {
+        if (_animator == null)
+        {
             Debug.LogError("Could not find enemy animation");
         }
 
@@ -61,7 +62,7 @@ public class EnemyScript : MonoBehaviour
 
             GameObject enemyLaser = Instantiate(_laserPrefab, this.transform.position, Quaternion.identity);
             Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
-            
+
             foreach (Laser laser in lasers)
             {
                 laser.AssignEnemyLaser();
@@ -102,7 +103,6 @@ public class EnemyScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Collided with {other.tag}");
         if (other.tag == "Laser")
         {
             _player?.AddScore(10);

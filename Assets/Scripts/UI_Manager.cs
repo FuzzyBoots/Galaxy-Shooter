@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -31,6 +32,9 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     float _flickerFrequency = 5;
     private bool _gameOver = false;
+    
+    [SerializeField]
+    TMP_Text _ammoText;
 
     // Start is called before the first frame update
     void Start()
@@ -91,5 +95,10 @@ public class UI_Manager : MonoBehaviour
         }
         _gameOverText.gameObject.SetActive(true);
         yield break;
+    }
+
+    internal void SetAmmo(int ammoCount)
+    {
+        _ammoText.text = "Ammo: " + ammoCount;
     }
 }

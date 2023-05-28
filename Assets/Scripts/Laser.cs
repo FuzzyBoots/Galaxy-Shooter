@@ -53,6 +53,7 @@ public class Laser : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log($"collision tag: {collision.tag} isEnemy: {_isEnemyLaser}");
         if (collision.tag == "Player" && _isEnemyLaser)
         {
             PlayerScript player = collision.GetComponent<PlayerScript>();

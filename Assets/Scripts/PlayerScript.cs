@@ -12,6 +12,8 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private float _speedBoost = 1.8f;
+    [SerializeField]
+    private float _thrusterBoost = 1.5f;
 
     [SerializeField]
     private float _rBound = 8f;
@@ -40,7 +42,13 @@ public class PlayerScript : MonoBehaviour
     private float _speedTime = 0;
 
     [SerializeField]
-    private bool _shieldActive = false;
+    private int _shieldPower = 0;
+
+    [SerializeField]
+    private int _maxShieldPower = 3;
+
+    [SerializeField]
+    private int _ammoCount = 15;
 
     [SerializeField]
     private GameObject _shieldVisualizer;
@@ -49,6 +57,8 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private int _score = 0;
+
+    private bool _thrustersActive = false;
 
     UI_Manager _uiManager;
 
@@ -61,6 +71,9 @@ public class PlayerScript : MonoBehaviour
     
     [SerializeField]
     private GameObject _explosion;
+
+    [SerializeField]
+    private AudioClip _clickClip;
 
     // Start is called before the first frame update
     void Start()
@@ -108,23 +121,34 @@ public class PlayerScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
         {
-            GameObject laser;
-            if (Time.time < _tripleShotTime)
+            if (_ammoCount > 0)
             {
-                laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
-            } else
-            {
-                laser = Instantiate(_laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
-            }
-            laser.transform.parent = _laserContainer;
-            _canFire= Time.time + _fireRate;
+                GameObject laser;
+                if (Time.time < _tripleShotTime)
+                {
+                    laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+                }
+                else
+                {
+                    laser = Instantiate(_laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+                }
+                laser.transform.parent = _laserContainer;
+                _canFire = Time.time + _fireRate;
 
-            _audioSource.PlayOneShot(_laserClip);
+                _audioSource.PlayOneShot(_laserClip);
+                changeAmmo(-1);
+            }
+            else
+            {
+                _audioSource.PlayOneShot(_clickClip);
+            }
         }
     }
 
     private void CalculateMovement()
     {
+        _thrustersActive = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         
@@ -138,7 +162,18 @@ public class PlayerScript : MonoBehaviour
 
     private float GetEffectiveSpeed()
     {
-        return (Time.time < _speedTime) ? _speed * _speedBoost : _speed;
+        float effectiveSpeed = _speed;
+        if (Time.time < _speedTime)
+        {
+            effectiveSpeed *= _speedBoost;
+        }
+
+        if (_thrustersActive)
+        {
+            effectiveSpeed *= _thrusterBoost;
+        }
+
+        return effectiveSpeed;
     }
 
     public void TurnOnTripleShot(float _powerupDuration)
@@ -151,18 +186,26 @@ public class PlayerScript : MonoBehaviour
         _speedTime = Time.time + _powerupDuration;
     }
 
-    public void SetShield(bool active)
+    public void AdjustShield(int charge)
     {
-        _shieldActive = active;
-        _shieldVisualizer.SetActive(_shieldActive);
+        _shieldPower = Math.Clamp(_shieldPower + charge, 0, _maxShieldPower);
+        ChangeShield();
+    }
+
+    private void ChangeShield()
+    {
+        SpriteRenderer spriteRenderer = _shieldVisualizer.GetComponent<SpriteRenderer>();
+
+        float gradient = (_shieldPower / (float)_maxShieldPower);
+        spriteRenderer.color = new Color(1, gradient, gradient, Mathf.Sqrt(gradient));
     }
 
     public void Damage()
     {
-        if (_shieldActive)
+        if (_shieldPower > 0)
         {
             // Tank the hit
-            SetShield(false);
+            AdjustShield(-1);
             return;
         }
 
@@ -201,5 +244,11 @@ public class PlayerScript : MonoBehaviour
     {
         _score += score;
         _uiManager.SetScore(_score);
+    }
+
+    public void changeAmmo(int amount)
+    {
+        _ammoCount += amount;
+        _uiManager.SetAmmo(_ammoCount);
     }
 }
