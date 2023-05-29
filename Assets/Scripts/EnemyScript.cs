@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
@@ -60,13 +61,11 @@ public class EnemyScript : MonoBehaviour
             _fireRate = Random.Range(3f, 7f);
             _canFire = Time.time + _fireRate;
 
-            GameObject enemyLaser = Instantiate(_laserPrefab, this.transform.position, Quaternion.identity);
-            Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
-
-            foreach (Laser laser in lasers)
-            {
-                laser.AssignEnemyLaser();
-            }
+            Laser enemyLaser_L = Instantiate(_laserPrefab, this.transform.position + new Vector3(-0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
+            Laser enemyLaser_R = Instantiate(_laserPrefab, this.transform.position + new Vector3(0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
+            
+            enemyLaser_L.AssignEnemyLaser();
+            enemyLaser_R.AssignEnemyLaser();
         }
     }
 

@@ -136,7 +136,7 @@ public class PlayerScript : MonoBehaviour
                 _canFire = Time.time + _fireRate;
 
                 _audioSource.PlayOneShot(_laserClip);
-                changeAmmo(-1);
+                ChangeAmmo(-1);
             }
             else
             {
@@ -246,7 +246,7 @@ public class PlayerScript : MonoBehaviour
         _uiManager.SetScore(_score);
     }
 
-    public void changeAmmo(int amount)
+    public void ChangeAmmo(int amount)
     {
         _ammoCount += amount;
         _uiManager.SetAmmo(_ammoCount);

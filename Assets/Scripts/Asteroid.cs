@@ -40,7 +40,7 @@ public class Asteroid : MonoBehaviour
     {
         if (collision.tag == "Laser")
         {
-            Instantiate(_explosion, this.transform.position, Quaternion.identity);
+            GameObject explosion = Instantiate(_explosion, this.transform.position, Quaternion.identity);
 
             Collider2D collider = GetComponent<Collider2D>();
             if (collider != null)
