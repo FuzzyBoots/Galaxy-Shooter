@@ -609,6 +609,7 @@ MonoBehaviour:
   - {fileID: 1645683774847819264, guid: 44bce2b36488f1b4ca56f1bacc531dea, type: 3}
   - {fileID: 1179742542422428561, guid: 788ad9442c536544a932ec94fea6dcdf, type: 3}
   - {fileID: 5483567332355888473, guid: d58a80b1c4c3cbb469c30adf28a89b86, type: 3}
+  - {fileID: 5483567332355888473, guid: f163ee708184fe843b4a6c0c80d81bed, type: 3}
   _spawnEnemies: 0
   _enemyContainer: {fileID: 1165781423}
   _spawnPowerups: 1
@@ -2046,7 +2047,7 @@ MonoBehaviour:
   _score: 0
   _laserClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
   _explosion: {fileID: 4306520706123486587, guid: 974079cf29933a74da22c9faae19b7b0, type: 3}
-  _clickClip: {fileID: 8300000, guid: d4e107dc2df05c541935ac9611f6f923, type: 3}
+  _clickClip: {fileID: 8300000, guid: 212e428be57ad534aa7980cf9e3c4cc0, type: 3}
 --- !u!212 &2084901801
 SpriteRenderer:
   m_ObjectHideFlags: 0

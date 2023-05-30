@@ -13,7 +13,8 @@ public class Powerup : MonoBehaviour
     {
         TripleShot,
         Speed,
-        Shield
+        Shield,
+        Ammo
     }
 
     [SerializeField]
@@ -62,6 +63,9 @@ public class Powerup : MonoBehaviour
                     break;
                 case PowerupEnum.Shield:
                     player?.AdjustShield(3);
+                    break;
+                case PowerupEnum.Ammo:
+                    player?.AdjustAmmo(10);
                     break;
                 default:
                     Debug.LogError("Unexpected Powerup type");
