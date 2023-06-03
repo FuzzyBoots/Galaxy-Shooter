@@ -41,6 +41,9 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     Image _thrusterImage;
 
+    [SerializeField]
+    TMP_Text _overheatText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -105,13 +108,19 @@ public class UI_Manager : MonoBehaviour
         yield break;
     }
 
-    internal void SetAmmo(int ammoCount)
+    public void SetAmmo(int ammoCount)
     {
         _ammoText.text = "Ammo: " + ammoCount;
     }
 
-    internal void setThrusterPower(float thrusterPower)
+    public void SetThrusterPower(float thrusterPower)
     {
         _thrustPercentage = thrusterPower;
+    }
+
+    public void SetOverheatVisible(bool visible)
+    {
+        Debug.Log($"Overheat: {visible}");
+        _overheatText.gameObject.SetActive(visible);
     }
 }

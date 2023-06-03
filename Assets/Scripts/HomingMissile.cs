@@ -53,16 +53,12 @@ public class HomingMissile : MonoBehaviour
 
         if (_nearestEnemy == null) { return; }
 
-        Debug.Log("Locking on...");
-
         Vector3 direction = (Vector3)_nearestEnemy.position - transform.position;
         direction.Normalize();
         float rotateAmount = Vector3.Cross(direction, transform.up).z;
         float rotation = Mathf.Clamp(_turningRadius * Time.deltaTime, 0f, rotateAmount);
-        Debug.Log($"Rotation: {rotation}");
         this.transform.Rotate(0,0, rotation);
         Vector3 displacement = _missileSpeed * transform.up* Time.deltaTime;
-        Debug.Log("Displacement: " + displacement);
         this.transform.Translate(displacement);
     }
 

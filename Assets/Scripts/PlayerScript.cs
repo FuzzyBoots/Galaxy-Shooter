@@ -51,7 +51,9 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private GameObject _shieldVisualizer;
-    
+    [SerializeField]
+    private GameObject _thrusterVisualizer;
+
     private Transform _laserContainer;
 
     private Transform _fireContainer;
@@ -84,6 +86,7 @@ public class PlayerScript : MonoBehaviour
     private float _thrusterDepletion = 0.75f;
     [SerializeField]
     private float _thrusterRegeneration = 0.25f;
+    private float _thrusterTimeout = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -169,15 +172,32 @@ public class PlayerScript : MonoBehaviour
 
     private void CalculateMovement()
     {
-        _thrustersActive = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) && _thrusterPower > 0.0f;
+        _thrustersActive = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && _thrusterPower > 0f;
+        _thrusterVisualizer.SetActive(_thrustersActive);
 
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         
-        float effectiveSpeed = GetEffectiveSpeed(Time.deltaTime);
+        float effectiveSpeed = GetEffectiveSpeed();
 
-        _thrusterPower = Mathf.Clamp(_thrusterPower + Time.deltaTime * _thrusterRegeneration, 0f, 1f);
-        _uiManager.setThrusterPower(_thrusterPower);
+        if (_thrustersActive)
+        {
+            _thrusterPower = Mathf.Clamp(_thrusterPower - Time.deltaTime * _thrusterDepletion, 0f, 1f);
+            if (_thrusterPower < 0.05f)
+            {
+                // Overheat
+                _thrusterPower = 0f;
+                _thrusterTimeout = Time.time + 3f;
+            }
+        }
+
+        _uiManager.SetOverheatVisible(_thrusterTimeout > Time.time);
+
+        if (_thrusterTimeout <= Time.time)
+        {
+            _thrusterPower = Mathf.Clamp(_thrusterPower + Time.deltaTime * _thrusterRegeneration, 0f, 1f);
+        }
+        _uiManager.SetThrusterPower(_thrusterPower);
 
         transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
         transform.Translate(Vector3.up * verticalInput * effectiveSpeed * Time.deltaTime);
@@ -185,7 +205,7 @@ public class PlayerScript : MonoBehaviour
         transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, _lBound, _rBound), Mathf.Clamp(this.transform.position.y, _dBound, _uBound), this.transform.position.z);
     }
 
-    private float GetEffectiveSpeed(float deltaTime)
+    private float GetEffectiveSpeed()
     {
         float effectiveSpeed = _speed;
         if (Time.time < _speedTime)
@@ -196,7 +216,6 @@ public class PlayerScript : MonoBehaviour
         if (_thrustersActive)
         {
             effectiveSpeed *= _thrusterBoost;
-            _thrusterPower = Mathf.Clamp(_thrusterPower - deltaTime * _thrusterDepletion, 0f, 1f);
         }
 
         return effectiveSpeed;
