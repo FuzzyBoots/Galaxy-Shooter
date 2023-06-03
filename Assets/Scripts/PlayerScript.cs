@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -30,6 +27,8 @@ public class PlayerScript : MonoBehaviour
     private GameObject _tripleLaserPrefab;
     [SerializeField]
     private GameObject _firePrefab;
+    [SerializeField]
+    private GameObject _homingPrefab;
 
     [SerializeField]
     private float _fireRate = 0.5f;  // half a second
@@ -55,6 +54,8 @@ public class PlayerScript : MonoBehaviour
     
     private Transform _laserContainer;
 
+    private Transform _fireContainer;
+
     [SerializeField]
     private int _score = 0;
 
@@ -74,6 +75,15 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private AudioClip _clickClip;
+    private float _homingTime;
+
+    [SerializeField]
+    private float _thrusterPower = 1;
+
+    [SerializeField]
+    private float _thrusterDepletion = 0.75f;
+    [SerializeField]
+    private float _thrusterRegeneration = 0.25f;
 
     // Start is called before the first frame update
     void Start()
@@ -87,6 +97,8 @@ public class PlayerScript : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
 
         _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
+
+        _fireContainer = GameObject.Find("FireContainer").transform;
 
         if (_laserContainer == null)
         {
@@ -107,6 +119,11 @@ public class PlayerScript : MonoBehaviour
         {
             Debug.LogError("No Explosion Manager found!");
         }
+
+        if (_fireContainer == null)
+        {
+            Debug.LogError("No Fire Container found!");
+        }
     }
 
     // Update is called once per frame
@@ -124,7 +141,12 @@ public class PlayerScript : MonoBehaviour
             if (_ammoCount > 0)
             {
                 GameObject laser;
-                if (Time.time < _tripleShotTime)
+                if (Time.time < _homingTime)
+                {
+                    Debug.Log("Missile?");
+                    laser = Instantiate(_homingPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+                }
+                else if (Time.time < _tripleShotTime)
                 {
                     laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
                 }
@@ -147,12 +169,15 @@ public class PlayerScript : MonoBehaviour
 
     private void CalculateMovement()
     {
-        _thrustersActive = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        _thrustersActive = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) && _thrusterPower > 0.0f;
 
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         
-        float effectiveSpeed = GetEffectiveSpeed();
+        float effectiveSpeed = GetEffectiveSpeed(Time.deltaTime);
+
+        _thrusterPower = Mathf.Clamp(_thrusterPower + Time.deltaTime * _thrusterRegeneration, 0f, 1f);
+        _uiManager.setThrusterPower(_thrusterPower);
 
         transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
         transform.Translate(Vector3.up * verticalInput * effectiveSpeed * Time.deltaTime);
@@ -160,7 +185,7 @@ public class PlayerScript : MonoBehaviour
         transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, _lBound, _rBound), Mathf.Clamp(this.transform.position.y, _dBound, _uBound), this.transform.position.z);
     }
 
-    private float GetEffectiveSpeed()
+    private float GetEffectiveSpeed(float deltaTime)
     {
         float effectiveSpeed = _speed;
         if (Time.time < _speedTime)
@@ -171,6 +196,7 @@ public class PlayerScript : MonoBehaviour
         if (_thrustersActive)
         {
             effectiveSpeed *= _thrusterBoost;
+            _thrusterPower = Mathf.Clamp(_thrusterPower - deltaTime * _thrusterDepletion, 0f, 1f);
         }
 
         return effectiveSpeed;
@@ -209,20 +235,57 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
-        _lives--;
+        AdjustHealth(-1);        
+    }
+
+    public void AddScore(int score)
+    {
+        _score += score;
+        _uiManager.SetScore(_score);
+    }
+
+    public void AdjustAmmo(int amount)
+    {
+        _ammoCount += amount;
+        _uiManager.SetAmmo(_ammoCount);
+    }
+
+    internal void AdjustHealth(int amount)
+    {
+        if (amount == 0) { return; }
+        _lives = Mathf.Clamp(_lives + amount, 0, 3);
+
         _uiManager.SetLives(_lives);
 
-        if (_lives == 2)
+        if (amount < 0)
         {
-            GameObject fire = Instantiate(_firePrefab, transform.position, Quaternion.identity);
-            
-            fire.transform.SetParent(transform);
-            fire.transform.Translate(new Vector3(-0.62f, -1.7f, 0f));
-        } else if (_lives == 1) {
-            GameObject fire = Instantiate(_firePrefab, transform.position, Quaternion.identity);
+            for (int i = amount; i < 0; ++i)
+            {
+                GameObject fire = Instantiate(_firePrefab, transform.position, Quaternion.identity);
+                fire.transform.SetParent(_fireContainer.transform);
+                float posX = UnityEngine.Random.Range(-0.62f, 0.62f);
+                fire.transform.Translate(new Vector3(posX, -1.7f, 0f));
+            }
+        }
 
-            fire.transform.SetParent(transform);
-            fire.transform.Translate(new Vector3(0.62f, -1.7f, 0f));
+        if (amount > 0)
+        {
+            if (_fireContainer.childCount > 0)
+            {
+                for (int i = 0; i < amount; ++i)
+                {
+                    GameObject fire = _fireContainer.GetChild(0).gameObject;
+                    if (fire != null)
+                    {
+                        Debug.Log("Destroying fire at X pos " + fire.transform.position.x);
+                        Destroy(fire);
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("Could not find a fire to heal.");
+            }
         }
 
         if (_lives < 1)
@@ -240,15 +303,9 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    public void AddScore(int score)
+    internal void TurnOnMissile(float powerupDuration)
     {
-        _score += score;
-        _uiManager.SetScore(_score);
-    }
-
-    public void AdjustAmmo(int amount)
-    {
-        _ammoCount += amount;
-        _uiManager.SetAmmo(_ammoCount);
+        Debug.Log("Missile turned on");
+        _homingTime = Time.time + powerupDuration;
     }
 }

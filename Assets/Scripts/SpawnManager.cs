@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    [System.Serializable]
+    public class PowerUpEntry
+    {
+        public GameObject _powerup;
+        public float _spawnWeight = 1;
+    }
+
     [SerializeField] private GameObject enemyPrefab;
     
     [SerializeField]
-    private GameObject[] _powerups;
+    public PowerUpEntry[] _powerups;
 
     [SerializeField]
     private bool _spawnEnemies = true;
@@ -21,8 +28,23 @@ public class SpawnManager : MonoBehaviour
     private bool _spawnPowerups = true;
     private bool _powerupSpawnCoroutineActive = false;
 
+    private List<GameObject> _powerupList;
+
     void Start()
     {
+        BuildPowerupList();
+    }
+
+    private void BuildPowerupList()
+    {
+        _powerupList = new List<GameObject>();
+        foreach (PowerUpEntry entry in _powerups)
+        {
+            for (int i = 0; i < entry._spawnWeight; ++i)
+            {
+                _powerupList.Add(entry._powerup);
+            }
+        }
     }
 
     IEnumerator SpawnEnemies()
@@ -56,11 +78,10 @@ public class SpawnManager : MonoBehaviour
         while (_spawnPowerups)
         {
             Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
-            int index = Random.Range(0, _powerups.Count());
-            Debug.Log($"Powerup Num: {index}");
-
-            GameObject randomPowerup = _powerups[index];
-            Debug.Log($"Powerup Name: {randomPowerup.name}");
+            int index = Random.Range(0, _powerupList.Count());
+            
+            GameObject randomPowerup = _powerupList[index];
+            // Debug.Log($"Powerup Name: {randomPowerup.name}");
             Instantiate(randomPowerup, spawnPosition, Quaternion.identity);
 
             yield return new WaitForSeconds(Random.Range(3f, 7f));

@@ -14,7 +14,9 @@ public class Powerup : MonoBehaviour
         TripleShot,
         Speed,
         Shield,
-        Ammo
+        Ammo,
+        Health,
+        Homing,
     }
 
     [SerializeField]
@@ -66,6 +68,12 @@ public class Powerup : MonoBehaviour
                     break;
                 case PowerupEnum.Ammo:
                     player?.AdjustAmmo(10);
+                    break;
+                case PowerupEnum.Health:
+                    player?.AdjustHealth(1);
+                    break;
+                case PowerupEnum.Homing:
+                    player?.TurnOnMissile(_powerupDuration);
                     break;
                 default:
                     Debug.LogError("Unexpected Powerup type");

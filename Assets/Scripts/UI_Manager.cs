@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,9 +31,15 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     float _flickerFrequency = 5;
     private bool _gameOver = false;
+
+    [SerializeField]
+    private float _thrustPercentage = 1.0f;
     
     [SerializeField]
     TMP_Text _ammoText;
+
+    [SerializeField]
+    Image _thrusterImage;
 
     // Start is called before the first frame update
     void Start()
@@ -64,6 +69,9 @@ public class UI_Manager : MonoBehaviour
                 Application.OpenURL("about:blank");
             #endif
         }
+
+        float effectivePercentage = 1f - Mathf.Clamp(_thrustPercentage, 0.0f, 1.0f);
+        _thrusterImage.rectTransform.anchoredPosition = Vector3.left * effectivePercentage * _thrusterImage.rectTransform.rect.width;
     }
 
     public void SetScore(int score)
@@ -100,5 +108,10 @@ public class UI_Manager : MonoBehaviour
     internal void SetAmmo(int ammoCount)
     {
         _ammoText.text = "Ammo: " + ammoCount;
+    }
+
+    internal void setThrusterPower(float thrusterPower)
+    {
+        _thrustPercentage = thrusterPower;
     }
 }

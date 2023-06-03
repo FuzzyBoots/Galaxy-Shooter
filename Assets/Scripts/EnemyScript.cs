@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
@@ -79,7 +77,7 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
-    private void Die()
+    public void Die()
     {
         _animator.SetTrigger("OnEnemyDeath");
 
