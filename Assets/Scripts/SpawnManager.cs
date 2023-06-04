@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -56,9 +58,14 @@ public class SpawnManager : MonoBehaviour
         _enemySpawnCoroutineActive = true;
         while (_spawnEnemies)
         {
+            Array values = Enum.GetValues(typeof(EnemyScript.MovementStyles));
+
+            EnemyScript.MovementStyles randomMovement = (EnemyScript.MovementStyles)values.GetValue(Random.Range(0, values.Length));
+            Debug.Log(randomMovement.ToString());
             Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
             GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             enemy.transform.parent = _enemyContainer.transform;
+            enemy.GetComponent<EnemyScript>().SetMovementStyle(randomMovement);
             
             yield return new WaitForSeconds(5.0f);
         }
@@ -77,7 +84,7 @@ public class SpawnManager : MonoBehaviour
         _powerupSpawnCoroutineActive = true;
         while (_spawnPowerups)
         {
-            Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
+            Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
             int index = Random.Range(0, _powerupList.Count());
             
             GameObject randomPowerup = _powerupList[index];

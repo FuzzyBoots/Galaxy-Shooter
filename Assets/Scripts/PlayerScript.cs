@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -40,6 +41,9 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private int _ammoCount = 15;
+
+    [SerializeField]
+    private int _maxAmmoCount = 50;
 
     [SerializeField]
     private GameObject _shieldVisualizer;
@@ -130,6 +134,10 @@ public class PlayerScript : MonoBehaviour
         {
             Debug.LogError("No Fire Container found!");
         }
+
+        // Initialize UI
+        _uiManager.SetScore(_score);
+        _uiManager.SetAmmo(_ammoCount, _maxAmmoCount);
     }
 
     // Update is called once per frame
@@ -269,7 +277,7 @@ public class PlayerScript : MonoBehaviour
             _camera.transform.position = origPos + new Vector3(Random.Range(-_shakeAmount, _shakeAmount), Random.Range(-_shakeAmount, _shakeAmount), 0);
             yield return new WaitForSeconds(0.1f);
         }
-        
+        _camera.transform.position = origPos;
     }
 
     public void AddScore(int score)
@@ -281,7 +289,8 @@ public class PlayerScript : MonoBehaviour
     public void AdjustAmmo(int amount)
     {
         _ammoCount += amount;
-        _uiManager.SetAmmo(_ammoCount);
+        _ammoCount = Math.Clamp(_ammoCount, 0, _maxAmmoCount);
+        _uiManager.SetAmmo(_ammoCount, _maxAmmoCount);
     }
 
     internal void AdjustHealth(int amount)

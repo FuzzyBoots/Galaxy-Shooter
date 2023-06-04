@@ -109,9 +109,9 @@ public class UI_Manager : MonoBehaviour
         yield break;
     }
 
-    public void SetAmmo(int ammoCount)
+    public void SetAmmo(int ammoCount, int maxAmmoCount)
     {
-        _ammoText.text = "Ammo: " + ammoCount;
+        _ammoText.text = $"Ammo: {ammoCount} / {maxAmmoCount}";
     }
 
     public void SetThrusterPower(float thrusterPower)

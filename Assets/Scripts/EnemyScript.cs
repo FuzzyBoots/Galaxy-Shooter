@@ -1,11 +1,24 @@
 using System.Collections;
+using System.IO;
 using UnityEngine;
 
 public class EnemyScript : MonoBehaviour
 {
-    private float _enemySpeed = 4f;
-    private float _respawnDistance = -4f;
+    public enum MovementStyles
+    {
+        StraightDown,
+        CaromDownL,
+        CaromDownR
+    }
 
+    [SerializeField] 
+    private MovementStyles _movementStyle = MovementStyles.StraightDown;
+
+    [SerializeField]
+    private float _enemySpeed = 4f;
+
+    private int _horizontalDirection = 1;
+    
     [SerializeField]
     private static PlayerScript _player;
 
@@ -59,8 +72,8 @@ public class EnemyScript : MonoBehaviour
             _fireRate = Random.Range(3f, 7f);
             _canFire = Time.time + _fireRate;
 
-            Laser enemyLaser_L = Instantiate(_laserPrefab, this.transform.position + new Vector3(-0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
-            Laser enemyLaser_R = Instantiate(_laserPrefab, this.transform.position + new Vector3(0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
+            Laser enemyLaser_L = Instantiate(_laserPrefab, transform.position + new Vector3(-0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
+            Laser enemyLaser_R = Instantiate(_laserPrefab, transform.position + new Vector3(0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
             
             enemyLaser_L.AssignEnemyLaser();
             enemyLaser_R.AssignEnemyLaser();
@@ -69,11 +82,30 @@ public class EnemyScript : MonoBehaviour
 
     private void CalculateMovement()
     {
-        this.transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
-
-        if (this.transform.position.y < _respawnDistance && !_isDead)
+        switch (_movementStyle)
         {
-            this.transform.position = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0f);
+            case MovementStyles.StraightDown:
+                transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
+                break;
+            case MovementStyles.CaromDownL:
+                transform.Translate(new Vector3(-0.7f, -0.7f, 0f) * _enemySpeed * Time.deltaTime);
+                if (transform.position.x < GameManager.lBound)
+                {
+                    _movementStyle = MovementStyles.CaromDownR;
+                }
+                break;
+            case MovementStyles.CaromDownR:
+                transform.Translate(new Vector3(0.7f, -0.7f, 0f) * _enemySpeed * Time.deltaTime);
+                if (transform.position.x > GameManager.rBound)
+                {
+                    _movementStyle = MovementStyles.CaromDownL;
+                }
+                break;
+        }        
+
+        if (transform.position.y < GameManager.dBound && !_isDead)
+        {
+            transform.position = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0f);
         }
     }
 
@@ -95,7 +127,7 @@ public class EnemyScript : MonoBehaviour
 
         _isDead = true;
 
-        Destroy(this.gameObject, 2.8f);
+        Destroy(gameObject, 2.8f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -120,6 +152,11 @@ public class EnemyScript : MonoBehaviour
     IEnumerator DelayedDestroy(float time)
     {
         yield return new WaitForSeconds(time);
-        Destroy(this.gameObject);
+        Destroy(gameObject);
+    }
+
+    internal void SetMovementStyle(MovementStyles movement)
+    {
+        _movementStyle = movement;
     }
 }
