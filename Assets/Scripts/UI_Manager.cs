@@ -74,7 +74,8 @@ public class UI_Manager : MonoBehaviour
         }
 
         float effectivePercentage = 1f - Mathf.Clamp(_thrustPercentage, 0.0f, 1.0f);
-        _thrusterImage.rectTransform.anchoredPosition = Vector3.left * effectivePercentage * _thrusterImage.rectTransform.rect.width;
+        _thrusterImage.rectTransform.anchoredPosition = Vector3.left * effectivePercentage 
+            * _thrusterImage.rectTransform.rect.width;
     }
 
     public void SetScore(int score)
@@ -120,7 +121,6 @@ public class UI_Manager : MonoBehaviour
 
     public void SetOverheatVisible(bool visible)
     {
-        Debug.Log($"Overheat: {visible}");
         _overheatText.gameObject.SetActive(visible);
     }
 }

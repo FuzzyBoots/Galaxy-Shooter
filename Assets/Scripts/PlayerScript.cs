@@ -1,6 +1,7 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -11,15 +12,6 @@ public class PlayerScript : MonoBehaviour
     private float _speedBoost = 1.8f;
     [SerializeField]
     private float _thrusterBoost = 1.5f;
-
-    [SerializeField]
-    private float _rBound = 8f;
-    [SerializeField]
-    private float _lBound = -8f;
-    [SerializeField]
-    private float _uBound = 8f;
-    [SerializeField]
-    private float _dBound = -8f;
 
     [SerializeField]
     private GameObject _laserPrefab;
@@ -88,10 +80,21 @@ public class PlayerScript : MonoBehaviour
     private float _thrusterRegeneration = 0.25f;
     private float _thrusterTimeout = 0;
 
+    [SerializeField]
+    private float _thrusterOverheatTimeout = 3f;
+
+    [SerializeField]
+    private Camera _camera;
+
+    [SerializeField]
+    private float _shakeTime = 0.5f;
+    [SerializeField]
+    private float _shakeAmount = 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
-        this.transform.position = new Vector3(0f, -6f, 0f);
+        this.transform.position = new Vector3(0f, GameManager.dBound, 0f);
 
         _laserContainer = GameObject.Find("LaserContainer").transform;
 
@@ -146,8 +149,7 @@ public class PlayerScript : MonoBehaviour
                 GameObject laser;
                 if (Time.time < _homingTime)
                 {
-                    Debug.Log("Missile?");
-                    laser = Instantiate(_homingPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+                    laser = Instantiate(_homingPrefab, this.transform.position + Vector3.up * 2f, Quaternion.identity);
                 }
                 else if (Time.time < _tripleShotTime)
                 {
@@ -172,7 +174,8 @@ public class PlayerScript : MonoBehaviour
 
     private void CalculateMovement()
     {
-        _thrustersActive = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && _thrusterPower > 0f;
+        _thrustersActive = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) 
+            && _thrusterPower > 0f;
         _thrusterVisualizer.SetActive(_thrustersActive);
 
         float horizontalInput = Input.GetAxis("Horizontal");
@@ -187,22 +190,21 @@ public class PlayerScript : MonoBehaviour
             {
                 // Overheat
                 _thrusterPower = 0f;
-                _thrusterTimeout = Time.time + 3f;
+                _thrusterTimeout = Time.time + _thrusterOverheatTimeout;
             }
+        } else if (_thrusterTimeout <= Time.time)
+        {
+            _thrusterPower = Mathf.Clamp(_thrusterPower + Time.deltaTime * _thrusterRegeneration, 0f, 1f);
         }
 
         _uiManager.SetOverheatVisible(_thrusterTimeout > Time.time);
 
-        if (_thrusterTimeout <= Time.time)
-        {
-            _thrusterPower = Mathf.Clamp(_thrusterPower + Time.deltaTime * _thrusterRegeneration, 0f, 1f);
-        }
         _uiManager.SetThrusterPower(_thrusterPower);
 
         transform.Translate(Vector3.right * horizontalInput * effectiveSpeed * Time.deltaTime);
         transform.Translate(Vector3.up * verticalInput * effectiveSpeed * Time.deltaTime);
 
-        transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, _lBound, _rBound), Mathf.Clamp(this.transform.position.y, _dBound, _uBound), this.transform.position.z);
+        transform.position = new Vector3(Mathf.Clamp(this.transform.position.x, GameManager.lBound, GameManager.rBound), Mathf.Clamp(this.transform.position.y, GameManager.dBound, GameManager.uBound), this.transform.position.z);
     }
 
     private float GetEffectiveSpeed()
@@ -254,7 +256,20 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
+        StartCoroutine(ShakeCamera());
         AdjustHealth(-1);        
+    }
+
+    IEnumerator ShakeCamera()
+    {
+        Vector3 origPos = _camera.transform.position;
+        float endShake = Time.time + _shakeTime;
+        while (Time.time < endShake)
+        {
+            _camera.transform.position = origPos + new Vector3(Random.Range(-_shakeAmount, _shakeAmount), Random.Range(-_shakeAmount, _shakeAmount), 0);
+            yield return new WaitForSeconds(0.1f);
+        }
+        
     }
 
     public void AddScore(int score)
@@ -296,14 +311,9 @@ public class PlayerScript : MonoBehaviour
                     GameObject fire = _fireContainer.GetChild(0).gameObject;
                     if (fire != null)
                     {
-                        Debug.Log("Destroying fire at X pos " + fire.transform.position.x);
                         Destroy(fire);
                     }
                 }
-            }
-            else
-            {
-                Debug.Log("Could not find a fire to heal.");
             }
         }
 

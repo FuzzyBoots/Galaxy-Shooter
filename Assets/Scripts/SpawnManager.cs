@@ -56,7 +56,7 @@ public class SpawnManager : MonoBehaviour
         _enemySpawnCoroutineActive = true;
         while (_spawnEnemies)
         {
-            Vector3 spawnPosition = new Vector3(Random.Range(-8f, 8f), 8f, 0);
+            Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
             GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             enemy.transform.parent = _enemyContainer.transform;
             
@@ -81,7 +81,6 @@ public class SpawnManager : MonoBehaviour
             int index = Random.Range(0, _powerupList.Count());
             
             GameObject randomPowerup = _powerupList[index];
-            // Debug.Log($"Powerup Name: {randomPowerup.name}");
             Instantiate(randomPowerup, spawnPosition, Quaternion.identity);
 
             yield return new WaitForSeconds(Random.Range(3f, 7f));

@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class HomingMissile : MonoBehaviour
 {
@@ -19,6 +20,9 @@ public class HomingMissile : MonoBehaviour
     [SerializeField]
     private PlayerScript _playerRef;
 
+    private Transform _target;
+    private Rigidbody2D _rigidBody;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,19 +30,34 @@ public class HomingMissile : MonoBehaviour
 
         _playerRef = GameObject.Find("Player").GetComponent<PlayerScript>();
 
-        _enemyContainer = GameObject.Find("EnemyContainer");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Time.time >= _explosionTime)
+        if (_playerRef == null )
         {
-            GameObject explosion = Instantiate(_explosion, this.transform.position, Quaternion.identity);
-
-            Destroy(this.gameObject);
+            Debug.LogError("Could not find Player.");
         }
 
+        _enemyContainer = GameObject.Find("EnemyContainer");
+
+        _rigidBody = GetComponent<Rigidbody2D>();
+    }
+
+    void FixedUpdate()
+    {
+        if (_target == null)
+        {
+            _target = GetClosestEnemy();
+
+            _rigidBody.velocity = transform.up * _missileSpeed;
+            return;
+        }
+        Vector2 direction = (Vector2)_target.position - _rigidBody.position;
+        direction.Normalize();
+        float rotateAmount = Vector3.Cross(direction, transform.up).z;
+        _rigidBody.angularVelocity = -_turningRadius * rotateAmount;
+        _rigidBody.velocity = transform.up * _missileSpeed;
+    }
+
+    private Transform GetClosestEnemy()
+    {
         Transform _nearestEnemy = null;
         float closestEnemyDist = Mathf.Infinity;
         foreach (Transform enemy in _enemyContainer.transform.GetComponentsInChildren<Transform>())
@@ -51,15 +70,18 @@ public class HomingMissile : MonoBehaviour
             }
         }
 
-        if (_nearestEnemy == null) { return; }
+        return _nearestEnemy;
+    }
 
-        Vector3 direction = (Vector3)_nearestEnemy.position - transform.position;
-        direction.Normalize();
-        float rotateAmount = Vector3.Cross(direction, transform.up).z;
-        float rotation = Mathf.Clamp(_turningRadius * Time.deltaTime, 0f, rotateAmount);
-        this.transform.Rotate(0,0, rotation);
-        Vector3 displacement = _missileSpeed * transform.up* Time.deltaTime;
-        this.transform.Translate(displacement);
+    // Update is called once per frame
+    void Update()
+    {
+        if (Time.time >= _explosionTime)
+        {
+            GameObject explosion = Instantiate(_explosion, this.transform.position, Quaternion.identity);
+
+            Destroy(this.gameObject);
+        }        
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -76,8 +98,6 @@ public class HomingMissile : MonoBehaviour
                 {
                     Debug.Log("Could not find player to damage.");
                 }
-
-                GameObject.Destroy(this.gameObject);
                 break;
             case "Enemy":
                 EnemyScript enemy = collision.GetComponent<EnemyScript>();
@@ -89,6 +109,6 @@ public class HomingMissile : MonoBehaviour
                 break;
         }
 
-        Destroy(this.gameObject, 2.65f);
+        Destroy(this.gameObject);
     }
 }

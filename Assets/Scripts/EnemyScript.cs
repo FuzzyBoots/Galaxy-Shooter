@@ -73,7 +73,7 @@ public class EnemyScript : MonoBehaviour
 
         if (this.transform.position.y < _respawnDistance && !_isDead)
         {
-            this.transform.position = new Vector3(Random.Range(-8f, 8f), 8f, 0f);
+            this.transform.position = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0f);
         }
     }
 
