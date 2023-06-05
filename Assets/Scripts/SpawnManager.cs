@@ -14,6 +14,9 @@ public class SpawnManager : MonoBehaviour
         public float _spawnWeight = 1;
     }
 
+    [SerializeField]
+    private float _enemyInterval = 2.0f;
+    
     [SerializeField] private GameObject enemyPrefab;
     
     [SerializeField]
@@ -22,6 +25,11 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private bool _spawnEnemies = true;
     private bool _enemySpawnCoroutineActive = false;
+
+    [SerializeField]
+    private int[] _waves;
+    [SerializeField]
+    private int _waveNumber = 0;
 
     [SerializeField] 
     private GameObject _enemyContainer;
@@ -32,8 +40,12 @@ public class SpawnManager : MonoBehaviour
 
     private List<GameObject> _powerupList;
 
+    private UI_Manager _uiManager;
+
     void Start()
     {
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+
         BuildPowerupList();
     }
 
@@ -56,18 +68,47 @@ public class SpawnManager : MonoBehaviour
         if (_enemySpawnCoroutineActive) { yield break;  }
 
         _enemySpawnCoroutineActive = true;
-        while (_spawnEnemies)
+        for (_waveNumber = 0; _waveNumber < _waves.Length; ++_waveNumber)
         {
-            Array values = Enum.GetValues(typeof(EnemyScript.MovementStyles));
+            if (!_spawnEnemies)
+            {
+                // If we're signaled to end, we leave.
+                yield break;
+            }
+            // Invoke Wave Change graphics
+            _uiManager.ShowWaveText(_waveNumber + 1);
+            yield return new WaitForSeconds(1f);
 
-            EnemyScript.MovementStyles randomMovement = (EnemyScript.MovementStyles)values.GetValue(Random.Range(0, values.Length));
-            Debug.Log(randomMovement.ToString());
-            Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
-            GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-            enemy.transform.parent = _enemyContainer.transform;
-            enemy.GetComponent<EnemyScript>().SetMovementStyle(randomMovement);
-            
-            yield return new WaitForSeconds(5.0f);
+            Debug.Log($"Wave {_waveNumber + 1}");
+            for (int _enemyNumber = 0; _enemyNumber < _waves[_waveNumber]; ++_enemyNumber)
+            {
+                if (!_spawnEnemies)
+                {
+                    // If we're signaled to end, we leave.
+                    yield break;
+                }
+                Array values = Enum.GetValues(typeof(EnemyScript.MovementStyles));
+
+                EnemyScript.MovementStyles randomMovement = (EnemyScript.MovementStyles)values.GetValue(Random.Range(0, values.Length));
+                Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
+
+                GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+                enemy.transform.parent = _enemyContainer.transform;
+                enemy.GetComponent<EnemyScript>().SetMovementStyle(randomMovement);
+
+                yield return new WaitForSeconds(_enemyInterval);
+            }
+
+            while (_enemyContainer.transform.childCount > 0)
+            {
+                if (!_spawnEnemies)
+                {
+                    // If we're signaled to end, we leave.
+                    break;
+                }
+                // Wait for all of the enemies to die
+                yield return new WaitForSeconds(0.25f);
+            }
         }
 
         _enemySpawnCoroutineActive= false;

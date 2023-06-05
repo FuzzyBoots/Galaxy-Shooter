@@ -17,8 +17,6 @@ public class EnemyScript : MonoBehaviour
     [SerializeField]
     private float _enemySpeed = 4f;
 
-    private int _horizontalDirection = 1;
-    
     [SerializeField]
     private static PlayerScript _player;
 

@@ -843,6 +843,7 @@ MonoBehaviour:
   - _powerup: {fileID: 1179742542422428561, guid: 2bfb3908bdd4abf44a1d0fa50d09f769, type: 3}
     _spawnWeight: 1
   _spawnEnemies: 0
+  _waves: 020000000300000005000000080000000d000000
   _enemyContainer: {fileID: 1165781423}
   _spawnPowerups: 0
 --- !u!4 &580873559
@@ -2433,10 +2434,6 @@ MonoBehaviour:
   _speed: 3.5
   _speedBoost: 1.8
   _thrusterBoost: 1.5
-  _rBound: 8
-  _lBound: -8
-  _uBound: 6
-  _dBound: -6
   _laserPrefab: {fileID: 1335631992657288000, guid: 7b5d1995fd793e34f841e30e4f1f690b, type: 3}
   _tripleLaserPrefab: {fileID: 1555059806091240840, guid: da03374f30235004fa5448e1cdbc3149, type: 3}
   _firePrefab: {fileID: 1580690488251040474, guid: 742db661034d83c40883b10d3d6f6c34, type: 3}
@@ -2446,6 +2443,7 @@ MonoBehaviour:
   _shieldPower: 0
   _maxShieldPower: 3
   _ammoCount: 15
+  _maxAmmoCount: 50
   _shieldVisualizer: {fileID: 93712253}
   _thrusterVisualizer: {fileID: 2074324995}
   _score: 0

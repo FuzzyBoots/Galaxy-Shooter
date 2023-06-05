@@ -44,6 +44,9 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     TMP_Text _overheatText;
 
+    [SerializeField]
+    TMP_Text _waveText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -106,6 +109,27 @@ public class UI_Manager : MonoBehaviour
             yield return new WaitForSeconds(interval);
         }
         _gameOverText.gameObject.SetActive(true);
+        yield break;
+    }
+
+    public void ShowWaveText(int wave)
+    {
+        _waveText.gameObject.SetActive(true);
+        _waveText.text = $"WAVE {wave}";
+        StartCoroutine(PulseWaveText());
+    }
+
+    IEnumerator PulseWaveText()
+    {
+        float startTime = Time.time;
+        float endTime = Time.time + 1f;
+        Color origColor = _waveText.color;
+        while (Time.time < endTime)
+        {
+            _waveText.color = new Color(origColor.r, origColor.g, origColor.g, (Mathf.Cos(6.28f * (Time.time - startTime) * 2) + 1) / 2);
+            yield return new WaitForSeconds(0.1f);
+        }
+        _waveText.gameObject.SetActive(false);
         yield break;
     }
 

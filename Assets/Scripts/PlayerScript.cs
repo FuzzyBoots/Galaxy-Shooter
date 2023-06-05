@@ -41,7 +41,6 @@ public class PlayerScript : MonoBehaviour
 
     [SerializeField]
     private int _ammoCount = 15;
-
     [SerializeField]
     private int _maxAmmoCount = 50;
 
