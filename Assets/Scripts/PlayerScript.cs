@@ -93,6 +93,8 @@ public class PlayerScript : MonoBehaviour
     private float _shakeTime = 0.5f;
     [SerializeField]
     private float _shakeAmount = 0.5f;
+    
+    private float _reverseTime;
 
     // Start is called before the first frame update
     void Start()
@@ -187,6 +189,12 @@ public class PlayerScript : MonoBehaviour
 
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
+
+        if (Time.time < _reverseTime)
+        {
+            horizontalInput *= -1;
+            verticalInput *= -1;
+        }
         
         float effectiveSpeed = GetEffectiveSpeed();
 
@@ -342,7 +350,11 @@ public class PlayerScript : MonoBehaviour
 
     internal void TurnOnMissile(float powerupDuration)
     {
-        Debug.Log("Missile turned on");
         _homingTime = Time.time + powerupDuration;
+    }
+
+    internal void TurnOnReverse(float powerupDuration)
+    {
+        _reverseTime = Time.time + powerupDuration;
     }
 }

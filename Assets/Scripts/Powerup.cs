@@ -17,6 +17,7 @@ public class Powerup : MonoBehaviour
         Ammo,
         Health,
         Homing,
+        Reverse,
     }
 
     [SerializeField]
@@ -74,6 +75,9 @@ public class Powerup : MonoBehaviour
                     break;
                 case PowerupEnum.Homing:
                     player?.TurnOnMissile(_powerupDuration);
+                    break;
+                case PowerupEnum.Reverse:
+                    player?.TurnOnReverse(_powerupDuration);
                     break;
                 default:
                     Debug.LogError("Unexpected Powerup type");
