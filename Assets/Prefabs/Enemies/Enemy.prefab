@@ -45,10 +45,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 7858231441180416003}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e82472a1816ef7c409bc99cc861256a2, type: 3}
+  m_Script: {fileID: 11500000, guid: aebcfb3952d96b74295b7cb0b57de7e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _movementStyle: 0
+  _attackStyle: 1
+  _enemySpeed: 4
+  _enemyRamSpeed: 16
   _laserPrefab: {fileID: 1335631992657288000, guid: 7b5d1995fd793e34f841e30e4f1f690b, type: 3}
+  _fireRate: 3
+  _ramDistance: 4
 --- !u!212 &908044383268923706
 SpriteRenderer:
   m_ObjectHideFlags: 0

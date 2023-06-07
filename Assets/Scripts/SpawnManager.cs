@@ -79,7 +79,6 @@ public class SpawnManager : MonoBehaviour
             _uiManager.ShowWaveText(_waveNumber + 1);
             yield return new WaitForSeconds(1f);
 
-            Debug.Log($"Wave {_waveNumber + 1}");
             for (int _enemyNumber = 0; _enemyNumber < _waves[_waveNumber]; ++_enemyNumber)
             {
                 if (!_spawnEnemies)
@@ -87,18 +86,18 @@ public class SpawnManager : MonoBehaviour
                     // If we're signaled to end, we leave.
                     yield break;
                 }
-                Array values = Enum.GetValues(typeof(EnemyScript.MovementStyles));
-
-                EnemyScript.MovementStyles randomMovement = (EnemyScript.MovementStyles)values.GetValue(Random.Range(0, values.Length));
                 Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
 
                 GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
                 enemy.transform.parent = _enemyContainer.transform;
-                enemy.GetComponent<EnemyScript>().SetMovementStyle(randomMovement);
+                StandardEnemyScript enemyScript = enemy.GetComponent<StandardEnemyScript>();
+                enemyScript.SetMovementStyle(StandardEnemyScript.GetRandomMovementStyle());
+                enemyScript.SetAttackStyle(StandardEnemyScript.GetRandomAttackStyle());
 
                 yield return new WaitForSeconds(_enemyInterval);
             }
 
+            Debug.Log("Waiting for all enemies to die");
             while (_enemyContainer.transform.childCount > 0)
             {
                 if (!_spawnEnemies)

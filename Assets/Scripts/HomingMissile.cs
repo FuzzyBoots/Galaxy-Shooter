@@ -98,17 +98,19 @@ public class HomingMissile : MonoBehaviour
                 {
                     Debug.Log("Could not find player to damage.");
                 }
+
+                Destroy(this.gameObject);
                 break;
             case "Enemy":
-                EnemyScript enemy = collision.GetComponent<EnemyScript>();
+                StandardEnemyScript enemy = collision.GetComponent<StandardEnemyScript>();
                 if (enemy != null)
                 {
                     _playerRef.AddScore(15);
                     enemy.Die();
                 }
+
+                Destroy(this.gameObject);
                 break;
         }
-
-        Destroy(this.gameObject);
     }
 }
