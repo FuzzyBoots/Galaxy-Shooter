@@ -105,10 +105,14 @@ public class SpawnManager : MonoBehaviour
                     // If we're signaled to end, we leave.
                     break;
                 }
+                Debug.Log($"{_enemyContainer.transform.childCount} enemies left!");
                 // Wait for all of the enemies to die
                 yield return new WaitForSeconds(0.25f);
             }
+            Debug.Log("All dead!");
         }
+
+        _uiManager.DisplayGameOver(true);
 
         _enemySpawnCoroutineActive= false;
          

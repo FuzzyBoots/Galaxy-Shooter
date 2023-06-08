@@ -1006,7 +1006,7 @@ MonoBehaviour:
   _thrusterImage: {fileID: 1056108259}
   _overheatText: {fileID: 501028215}
   _waveText: {fileID: 1766577996}
-  _winText: {fileID: 0}
+  _winText: {fileID: 1971650301}
 --- !u!114 &653488765
 MonoBehaviour:
   m_ObjectHideFlags: 0

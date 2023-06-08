@@ -47,6 +47,9 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     TMP_Text _waveText;
 
+    [SerializeField]
+    TMP_Text _winText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -91,24 +94,34 @@ public class UI_Manager : MonoBehaviour
         _livesImg.sprite = _livesSprites[lives];
     }
 
-    public void DisplayGameOver()
+    public void DisplayGameOver(bool winning = false)
     {
+        TMP_Text endingText;
         _gameOver = true;
-        _gameOverText.gameObject.SetActive(true);
+        
+        if (!winning)
+        {
+            endingText = _gameOverText;
+        }
+        else
+        {
+            endingText = _winText;
+        }
+        endingText.gameObject.SetActive(true);
         _reloadText.gameObject.SetActive(true);
-        StartCoroutine(FlickerGameOver());
+        StartCoroutine(FlickerText(endingText));
     }
 
-    IEnumerator FlickerGameOver()
+    IEnumerator FlickerText(TMP_Text text)
     {
         float interval = _flickerFrequency > 0 ? 1f / _flickerFrequency : 0.5f;
         float endTime = Time.time + _flickerTime;
         while (Time.time < endTime)
         {
-            _gameOverText.gameObject.SetActive(!_gameOverText.gameObject.activeSelf);
+            text.gameObject.SetActive(!_gameOverText.gameObject.activeSelf);
             yield return new WaitForSeconds(interval);
         }
-        _gameOverText.gameObject.SetActive(true);
+        text.gameObject.SetActive(true);
         yield break;
     }
 
@@ -116,20 +129,21 @@ public class UI_Manager : MonoBehaviour
     {
         _waveText.gameObject.SetActive(true);
         _waveText.text = $"WAVE {wave}";
-        StartCoroutine(PulseWaveText());
+        StartCoroutine(PulseText(_waveText));
     }
 
-    IEnumerator PulseWaveText()
+    IEnumerator PulseText(TMP_Text text)
     {
         float startTime = Time.time;
         float endTime = Time.time + 1f;
-        Color origColor = _waveText.color;
+        Color origColor = text.color;
         while (Time.time < endTime)
         {
-            _waveText.color = new Color(origColor.r, origColor.g, origColor.g, (Mathf.Cos(6.28f * (Time.time - startTime) * 2) + 1) / 2);
+            text.color = new Color(origColor.r, origColor.g, origColor.g, (Mathf.Cos(6.28f * (Time.time - startTime) * 2) + 1) / 2);
             yield return new WaitForSeconds(0.1f);
         }
-        _waveText.gameObject.SetActive(false);
+        text.color = origColor;
+        text.gameObject.SetActive(false);
         yield break;
     }
 

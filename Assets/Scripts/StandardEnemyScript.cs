@@ -132,7 +132,6 @@ public class StandardEnemyScript : MonoBehaviour
         {
             if (hit.collider.gameObject.tag == "Player")
             {
-                Debug.Log($"Distance: {hit.distance} RB: {hit.rigidbody} Collider: {hit.collider}");
                 // Start ram
                 _movementStyle = MovementStyle.Ram;
             }
@@ -195,6 +194,8 @@ public class StandardEnemyScript : MonoBehaviour
     public void Die()
     {
         _animator.SetTrigger("OnEnemyDeath");
+        _animator.SetFloat("LaserCount", 15);
+        Debug.Break();
 
         _explosionManager.PlayExplosion();
 
