@@ -836,7 +836,7 @@ MonoBehaviour:
   - _powerup: {fileID: 5483567332355888473, guid: f163ee708184fe843b4a6c0c80d81bed, type: 3}
     _spawnWeight: 5
   - _powerup: {fileID: 5483567332355888473, guid: 55623cd6c7046544b9f99e213707fabc, type: 3}
-    _spawnWeight: 3
+    _spawnWeight: 1
   - _powerup: {fileID: 5483567332355888473, guid: d58a80b1c4c3cbb469c30adf28a89b86, type: 3}
     _spawnWeight: 2
   - _powerup: {fileID: 1179742542422428561, guid: 788ad9442c536544a932ec94fea6dcdf, type: 3}
@@ -844,12 +844,41 @@ MonoBehaviour:
   - _powerup: {fileID: 1179742542422428561, guid: 2bfb3908bdd4abf44a1d0fa50d09f769, type: 3}
     _spawnWeight: 1
   - _powerup: {fileID: 5483567332355888473, guid: ba5dc73f56602fb4cbd999fadcdc30e4, type: 3}
+    _spawnWeight: 5
+  _enemies:
+  - _attackStyle: 0
+    _movementStyle: 0
+    _spawnWeight: 10
+  - _attackStyle: 1
+    _movementStyle: 0
+    _spawnWeight: 1
+  - _attackStyle: 1
+    _movementStyle: 1
+    _spawnWeight: 5
+  - _attackStyle: 1
+    _movementStyle: 2
+    _spawnWeight: 5
+  - _attackStyle: 0
+    _movementStyle: 2
     _spawnWeight: 3
+  - _attackStyle: 0
+    _movementStyle: 1
+    _spawnWeight: 3
+  - _attackStyle: 2
+    _movementStyle: 1
+    _spawnWeight: 2
+  - _attackStyle: 2
+    _movementStyle: 2
+    _spawnWeight: 2
+  - _attackStyle: 2
+    _movementStyle: 0
+    _spawnWeight: 2
   _spawnEnemies: 0
   _waves: 020000000300000005000000080000000d000000
   _waveNumber: 0
   _enemyContainer: {fileID: 1165781423}
   _spawnPowerups: 0
+  _percentShield: 0.2
 --- !u!4 &580873559
 Transform:
   m_ObjectHideFlags: 0
@@ -2795,7 +2824,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084901799}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -5, z: 0}
+  m_LocalPosition: {x: -11.46, y: 6.79, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:

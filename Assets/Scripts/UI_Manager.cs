@@ -30,7 +30,6 @@ public class UI_Manager : MonoBehaviour
     float _flickerTime = 5;
     [SerializeField]
     float _flickerFrequency = 5;
-    private bool _gameOver = false;
 
     [SerializeField]
     private float _thrustPercentage = 1.0f;
@@ -61,8 +60,9 @@ public class UI_Manager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_gameOver && Input.GetKeyDown(KeyCode.R))
+        if (GameManager.GameOver && Input.GetKeyDown(KeyCode.R))
         {
+            GameManager.GameOver = false;
             string currentSceneName = SceneManager.GetActiveScene().name;
             SceneManager.LoadScene(currentSceneName);
         }
@@ -97,7 +97,7 @@ public class UI_Manager : MonoBehaviour
     public void DisplayGameOver(bool winning = false)
     {
         TMP_Text endingText;
-        _gameOver = true;
+        GameManager.GameOver = true;
         
         if (!winning)
         {

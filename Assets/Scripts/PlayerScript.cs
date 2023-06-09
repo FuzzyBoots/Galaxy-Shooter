@@ -64,8 +64,6 @@ public class PlayerScript : MonoBehaviour
     private AudioClip _laserClip;
 
     private AudioSource _audioSource;
-
-    private ExplosionManager _explosionManager;
     
     [SerializeField]
     private GameObject _explosion;
@@ -107,8 +105,6 @@ public class PlayerScript : MonoBehaviour
 
         _audioSource = GetComponent<AudioSource>();
 
-        _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
-
         _fireContainer = GameObject.Find("FireContainer").transform;
 
         if (_laserContainer == null)
@@ -124,11 +120,6 @@ public class PlayerScript : MonoBehaviour
         if (_audioSource == null)
         {
             Debug.LogError("No Audio Source found!");
-        }
-
-        if (_explosionManager == null)
-        {
-            Debug.LogError("No Explosion Manager found!");
         }
 
         if (_fireContainer == null)
@@ -340,8 +331,7 @@ public class PlayerScript : MonoBehaviour
             spawnManager.StopSpawningPowerups();
 
             Instantiate(_explosion, this.transform.position, Quaternion.identity);
-            _explosionManager.PlayExplosion();
-
+            
             _uiManager.DisplayGameOver();
 
             Destroy(this.gameObject, 0.3f);

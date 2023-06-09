@@ -78,7 +78,7 @@ public class HomingMissile : MonoBehaviour
     {
         if (Time.time >= _explosionTime)
         {
-            GameObject explosion = Instantiate(_explosion, this.transform.position, Quaternion.identity);
+            Instantiate(_explosion, this.transform.position, Quaternion.identity);
 
             Destroy(this.gameObject);
         }        
@@ -98,6 +98,8 @@ public class HomingMissile : MonoBehaviour
                 {
                     Debug.Log("Could not find player to damage.");
                 }
+
+                Instantiate(_explosion, this.transform.position, Quaternion.identity);
 
                 Destroy(this.gameObject);
                 break;

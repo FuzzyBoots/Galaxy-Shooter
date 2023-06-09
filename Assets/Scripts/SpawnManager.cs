@@ -13,6 +13,14 @@ public class SpawnManager : MonoBehaviour
         public GameObject _powerup;
         public float _spawnWeight = 1;
     }
+    
+    [System.Serializable]
+    public class EnemyEntry
+    {
+        public StandardEnemyScript.AttackStyle _attackStyle;
+        public StandardEnemyScript.MovementStyle _movementStyle;
+        public float _spawnWeight = 1;
+    }
 
     [SerializeField]
     private float _enemyInterval = 2.0f;
@@ -21,6 +29,9 @@ public class SpawnManager : MonoBehaviour
     
     [SerializeField]
     public PowerUpEntry[] _powerups;
+
+    [SerializeField]
+    public EnemyEntry[] _enemies;
 
     [SerializeField]
     private bool _spawnEnemies = true;
@@ -39,14 +50,20 @@ public class SpawnManager : MonoBehaviour
     private bool _powerupSpawnCoroutineActive = false;
 
     private List<GameObject> _powerupList;
+    private List<EnemyEntry> _enemyList;
 
     private UI_Manager _uiManager;
+
+    [SerializeField]
+    private float _percentShield = 0.2f;
 
     void Start()
     {
         _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
 
         BuildPowerupList();
+
+        BuildEnemyList();
     }
 
     private void BuildPowerupList()
@@ -57,6 +74,18 @@ public class SpawnManager : MonoBehaviour
             for (int i = 0; i < entry._spawnWeight; ++i)
             {
                 _powerupList.Add(entry._powerup);
+            }
+        }
+    }
+
+    private void BuildEnemyList()
+    {
+        _enemyList = new List<EnemyEntry>();
+        foreach (EnemyEntry entry in _enemies)
+        {
+            for (int i = 0; i < entry._spawnWeight; ++i)
+            {
+                _enemyList.Add(entry);
             }
         }
     }
@@ -88,11 +117,19 @@ public class SpawnManager : MonoBehaviour
                 }
                 Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
 
+                int index = Random.Range(0, _enemyList.Count());
+                EnemyEntry entry = _enemyList[index];
+
                 GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
                 enemy.transform.parent = _enemyContainer.transform;
                 StandardEnemyScript enemyScript = enemy.GetComponent<StandardEnemyScript>();
-                enemyScript.SetMovementStyle(StandardEnemyScript.GetRandomMovementStyle());
-                enemyScript.SetAttackStyle(StandardEnemyScript.GetRandomAttackStyle());
+                enemyScript.SetMovementStyle(entry._movementStyle);
+                enemyScript.SetAttackStyle(entry._attackStyle);
+
+                if (Random.Range(0, 1f) < _percentShield)
+                {
+                    enemyScript.AddShield();
+                }
 
                 yield return new WaitForSeconds(_enemyInterval);
             }

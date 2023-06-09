@@ -64,6 +64,19 @@ public class Laser : MonoBehaviour
             }
 
             GameObject.Destroy(this.gameObject);
+        } else if (collision.tag == "Mine")
+        {
+            Mine mine = collision.GetComponent<Mine>();
+            if (mine != null)
+            {
+                mine.Die();
+            }
+            else
+            {
+                Debug.Log("Could not find mine to kill");
+            }
+
+            Destroy(this.gameObject);
         }
     }
 }

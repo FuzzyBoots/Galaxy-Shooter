@@ -5,15 +5,22 @@ using UnityEngine;
 
 public class Explosion : MonoBehaviour
 {
+    AudioSource _audioSource;
+
+    [SerializeField] private AudioClip _explosionClip;
+
     // Start is called before the first frame update
     void Start()
     {
-        Destroy(this.gameObject, 2.65f);
-    }
+        _audioSource = GetComponent<AudioSource>();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (_audioSource == null)
+        {
+            Debug.LogError("No Audio Source found!");
+        }
+
+        _audioSource.PlayOneShot(_explosionClip);
+
+        Destroy(this.gameObject, 2.65f);
     }
 }

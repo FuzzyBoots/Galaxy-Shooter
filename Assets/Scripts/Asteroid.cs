@@ -5,8 +5,6 @@ public class Asteroid : MonoBehaviour
     [SerializeField] float _rotateSpeed = 3f;
 
     [SerializeField] GameObject _explosion;
-    
-    private ExplosionManager _explosionManager;
 
     [SerializeField] SpawnManager _spawnManager;
     
@@ -15,16 +13,9 @@ public class Asteroid : MonoBehaviour
     {
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
 
-        _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
-
         if (_spawnManager == null)
         {
             Debug.LogError("No Spawn Manager found!");
-        }
-
-        if (_explosionManager == null)
-        {
-            Debug.LogError("No Explosion Manager found!");
         }
     }
 
@@ -49,8 +40,6 @@ public class Asteroid : MonoBehaviour
             {
                 Debug.Log("No Collider2D found, could not disable");
             }
-
-            _explosionManager.PlayExplosion();
 
             _spawnManager.StartSpawning();
 

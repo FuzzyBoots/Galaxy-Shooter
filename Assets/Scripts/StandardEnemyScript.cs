@@ -28,6 +28,7 @@ public class StandardEnemyScript : MonoBehaviour
     {
         FireLaser,
         Ram,
+        DropMines,
     }
 
     public static AttackStyle GetRandomAttackStyle()
@@ -37,6 +38,9 @@ public class StandardEnemyScript : MonoBehaviour
         Debug.Log(randomAttack.ToString());
         return randomAttack;
     }
+
+    [SerializeField]
+    private GameObject _shieldVisualizer;
 
     [SerializeField] 
     private MovementStyle _movementStyle = MovementStyle.StraightDown;
@@ -51,11 +55,12 @@ public class StandardEnemyScript : MonoBehaviour
     private float _enemyRamSpeed = 12f;
 
     [SerializeField]
+    private float _mineFrequency = 2.0f;
+
+    [SerializeField]
     private static PlayerScript _player;
 
     private Animator _animator;
-
-    private ExplosionManager _explosionManager;
 
     private bool _isDead = false;
 
@@ -69,6 +74,16 @@ public class StandardEnemyScript : MonoBehaviour
 
     [SerializeField]
     private float _ramDistance = 4f;
+    
+    private int _shieldPower;
+    
+    private float _canMine;
+
+    [SerializeField]
+    private GameObject _minePrefab;
+
+    [SerializeField]
+    private GameObject _explosion;
 
     // Start is called before the first frame update
     void Start()
@@ -83,18 +98,11 @@ public class StandardEnemyScript : MonoBehaviour
             }
         }
 
-        _explosionManager = GameObject.Find("AudioManager").GetComponent<ExplosionManager>();
-
         _animator = GetComponent<Animator>();
 
         if (_animator == null)
         {
             Debug.LogError("Could not find enemy animation");
-        }
-
-        if (_explosionManager == null)
-        {
-            Debug.LogError("No Explosion Manager found!");
         }
     }
 
@@ -108,7 +116,7 @@ public class StandardEnemyScript : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (_isDead) return;
+        if (_isDead || GameManager.GameOver) return;
 
         switch (_attackStyle)
         {
@@ -118,7 +126,23 @@ public class StandardEnemyScript : MonoBehaviour
             case AttackStyle.Ram:
                 HandleRam();
                 break;
+            case AttackStyle.DropMines:
+                HandleMine();
+                break;
         }
+    }
+
+    private void HandleMine()
+    {
+        if (Time.time <= _canMine)
+        {
+            return;
+        }
+
+        float _delay = Random.Range(0f, 2f);
+        _canMine = Time.time + _mineFrequency + _delay;
+
+        Instantiate(_minePrefab, transform.position + Vector3.up * 2, Quaternion.identity);
     }
 
     private void HandleRam()
@@ -144,8 +168,8 @@ public class StandardEnemyScript : MonoBehaviour
         {
             return;
         }
-        _fireRate = Random.Range(3f, 7f);
-        _canFire = Time.time + _fireRate;
+        float _delay = Random.Range(0f, 2f);
+        _canFire = Time.time + _fireRate + _delay;
 
         Laser enemyLaser_L = Instantiate(_laserPrefab, transform.position + new Vector3(-0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
         Laser enemyLaser_R = Instantiate(_laserPrefab, transform.position + new Vector3(0.23f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
@@ -191,13 +215,38 @@ public class StandardEnemyScript : MonoBehaviour
         }
     }
 
+    public void AddShield()
+    {
+        _shieldPower = 1;
+        ChangeShield();
+    }
+
+    private void ChangeShield()
+    {
+        SpriteRenderer spriteRenderer = _shieldVisualizer.GetComponent<SpriteRenderer>();
+
+        spriteRenderer.color = new Color(1, 0, 0, _shieldPower);
+    }
+
+    public void Damage()
+    {
+        if (_shieldPower > 0)
+        {
+            _shieldPower--;
+            ChangeShield();
+            return;
+        }
+        _player?.AddScore(10);
+
+        Die();
+    }
+
     public void Die()
     {
         _animator.SetTrigger("OnEnemyDeath");
-        _animator.SetFloat("LaserCount", 15);
-        Debug.Break();
 
-        _explosionManager.PlayExplosion();
+        GameObject explosion = Instantiate(_explosion, transform.position, Quaternion.identity);
+        explosion.transform.SetParent(transform);
 
         Collider2D collider = GetComponent<Collider2D>();
         if (collider != null)
@@ -218,11 +267,9 @@ public class StandardEnemyScript : MonoBehaviour
     {
         if (other.tag == "Laser")
         {
-            _player?.AddScore(10);
-
             Destroy(other.gameObject);
 
-            Die();
+            Damage();
         }
 
         if (other.tag == "Player")
@@ -232,7 +279,7 @@ public class StandardEnemyScript : MonoBehaviour
             Die();
         }
     }
-        
+
     internal void SetMovementStyle(MovementStyle movement)
     {
         _movementStyle = movement;
