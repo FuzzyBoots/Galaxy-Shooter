@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 using Random = UnityEngine.Random;
@@ -29,6 +31,7 @@ public class StandardEnemyScript : MonoBehaviour
         FireLaser,
         Ram,
         DropMines,
+        FireFromRear,
     }
 
     public static AttackStyle GetRandomAttackStyle()
@@ -74,7 +77,10 @@ public class StandardEnemyScript : MonoBehaviour
 
     [SerializeField]
     private float _ramDistance = 4f;
-    
+
+    [SerializeField]
+    private float _laserDistance = 8f;
+
     private int _shieldPower;
     
     private float _canMine;
@@ -84,6 +90,10 @@ public class StandardEnemyScript : MonoBehaviour
 
     [SerializeField]
     private GameObject _explosion;
+
+    [SerializeField]
+    private float _rotationSpeed = 400f;
+    private bool _shootingBack = false;
 
     // Start is called before the first frame update
     void Start()
@@ -129,7 +139,61 @@ public class StandardEnemyScript : MonoBehaviour
             case AttackStyle.DropMines:
                 HandleMine();
                 break;
+            case AttackStyle.FireFromRear:
+                HandleAttackFromRear();
+                break;
         }
+    }
+
+    private void HandleAttackFromRear()
+    {
+        if (_player.transform.position.y > transform.position.y && !_shootingBack)
+        {
+            // Wheel around and shoot?
+            StartCoroutine(TurnAroundAndShoot());
+        }
+    }
+
+    IEnumerator TurnAroundAndShoot()
+    {
+        _shootingBack = true;
+        float startTime = Time.time;
+
+        Debug.Log("Entering turn around");
+        // Turn until reversed
+        while (transform.rotation.z < 1f && transform.position.y > GameManager.dBound)
+        {
+            transform.Rotate(Vector3.forward * Time.deltaTime * _rotationSpeed);
+
+            Ray2D ramRay = new Ray2D(transform.position, -transform.up * _laserDistance);
+            Debug.DrawRay(ramRay.origin, ramRay.direction * _laserDistance);
+
+            RaycastHit2D[] hitData = Physics2D.RaycastAll(ramRay.origin, ramRay.direction, _ramDistance);
+
+            foreach (RaycastHit2D hit in hitData)
+            {
+                if (hit.collider.gameObject.tag == "Player")
+                {
+                    Vector3 laserVector = new Vector3(0, -1.8f, 0f);
+                    laserVector = Vector3.RotateTowards(laserVector, transform.up, 5, 0);
+
+                    Laser enemyLaser = Instantiate(_laserPrefab, transform.position + laserVector, Quaternion.identity).GetComponent<Laser>();
+                    enemyLaser.AssignEnemyLaser();
+                    enemyLaser.SetVector(laserVector.normalized);
+                }
+            }
+
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        Debug.Log("Exiting");
+        
+        // Rotate back
+        this.transform.rotation = Quaternion.identity;
+        Debug.Log(transform.rotation.eulerAngles);
+        _shootingBack = false;
+
+        yield break;
     }
 
     private void HandleMine()
@@ -183,26 +247,25 @@ public class StandardEnemyScript : MonoBehaviour
         switch (_movementStyle)
         {
             case MovementStyle.StraightDown:
-                transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
+                transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime, Space.World);
                 break;
             case MovementStyle.CaromDownL:
-                transform.Translate(new Vector3(-0.7f, -0.7f, 0f) * _enemySpeed * Time.deltaTime);
+                transform.Translate(new Vector3(-0.7f, -0.7f, 0f) * _enemySpeed * Time.deltaTime, Space.World);
                 if (transform.position.x < GameManager.lBound)
                 {
                     _movementStyle = MovementStyle.CaromDownR;
                 }
                 break;
             case MovementStyle.CaromDownR:
-                transform.Translate(new Vector3(0.7f, -0.7f, 0f) * _enemySpeed * Time.deltaTime);
+                transform.Translate(new Vector3(0.7f, -0.7f, 0f) * _enemySpeed * Time.deltaTime, Space.World);
                 if (transform.position.x > GameManager.rBound)
                 {
                     _movementStyle = MovementStyle.CaromDownL;
                 }
                 break;
             case MovementStyle.Ram:
-                transform.Translate(Vector3.down * _enemyRamSpeed * Time.deltaTime);
+                transform.Translate(Vector3.down * _enemyRamSpeed * Time.deltaTime, Space.World);
                 break;
-
         }
 
         if (transform.position.y < GameManager.dBound && !_isDead)
@@ -244,7 +307,7 @@ public class StandardEnemyScript : MonoBehaviour
     public void Die()
     {
         _animator.SetTrigger("OnEnemyDeath");
-
+        
         GameObject explosion = Instantiate(_explosion, transform.position, Quaternion.identity);
         explosion.transform.SetParent(transform);
 

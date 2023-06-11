@@ -7,38 +7,22 @@ public class Laser : MonoBehaviour
 
     [SerializeField]
     private float _destroyDistance = 10;
-
+    private Vector2 _directionVector = Vector2.up;
     [SerializeField]
     private bool _isEnemyLaser;
 
     // Update is called once per frame
     void Update()
     {
-        if (_isEnemyLaser)
-        {
-            MoveDown();
-        }
-        else
-        {
-            MoveUp();
-        }
+        Move(_directionVector);
     }
 
-    private void MoveUp()
+    private void Move(Vector2 direction)
     {
-        this.transform.Translate(Vector3.up * _laserSpeed * Time.deltaTime);
+        this.transform.Translate(direction * _laserSpeed * Time.deltaTime);
 
-        if (this.transform.position.y > _destroyDistance)
-        {
-            Destroy(this.gameObject);
-        }
-    }
-
-    private void MoveDown()
-    {
-        this.transform.Translate(Vector3.down * _laserSpeed * Time.deltaTime);
-
-        if (this.transform.position.y < -_destroyDistance)
+        if (Mathf.Abs(this.transform.position.x) > _destroyDistance ||
+            Mathf.Abs(this.transform.position.y) > _destroyDistance)
         {
             Destroy(this.gameObject);
         }
@@ -46,7 +30,14 @@ public class Laser : MonoBehaviour
 
     public void AssignEnemyLaser()
     {
+        _directionVector = Vector2.down;
         _isEnemyLaser= true;
+    }
+
+    public void SetVector(Vector2 directionVector)
+    {
+        this.transform.Rotate(Vector3.forward * Vector2.Angle(Vector2.up, directionVector));
+        _directionVector = directionVector;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
