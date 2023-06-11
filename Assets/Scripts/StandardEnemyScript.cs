@@ -16,7 +16,8 @@ public class StandardEnemyScript : MonoBehaviour
         CaromDownL,
         CaromDownR,
         END_STANDARD,
-        Ram
+        Ram,
+        NONE,
     }
 
     public static MovementStyle GetRandomMovementStyle()
@@ -41,6 +42,9 @@ public class StandardEnemyScript : MonoBehaviour
         Debug.Log(randomAttack.ToString());
         return randomAttack;
     }
+
+    [SerializeField]
+    private GameObject _turret;
 
     [SerializeField]
     private GameObject _shieldVisualizer;
@@ -92,8 +96,10 @@ public class StandardEnemyScript : MonoBehaviour
     private GameObject _explosion;
 
     [SerializeField]
-    private float _rotationSpeed = 400f;
+    private float _rotationSpeed = 4f;
     private bool _shootingBack = false;
+
+    private Coroutine _turnAndShootCoroutine;
 
     // Start is called before the first frame update
     void Start()
@@ -114,6 +120,8 @@ public class StandardEnemyScript : MonoBehaviour
         {
             Debug.LogError("Could not find enemy animation");
         }
+
+        // _turret = transform.GetChild(1);
     }
 
     // Update is called once per frame
@@ -147,39 +155,54 @@ public class StandardEnemyScript : MonoBehaviour
 
     private void HandleAttackFromRear()
     {
+        if (_player == null)
+        {
+            Debug.Log("Player is null during HandleAttackFromRear");
+        }
+
         if (_player.transform.position.y > transform.position.y && !_shootingBack)
         {
             // Wheel around and shoot?
-            StartCoroutine(TurnAroundAndShoot());
+            _turnAndShootCoroutine = StartCoroutine(TurnAroundAndShoot());
         }
     }
 
     IEnumerator TurnAroundAndShoot()
     {
         _shootingBack = true;
-        float startTime = Time.time;
+        bool sweepingRight = true;
 
         Debug.Log("Entering turn around");
         // Turn until reversed
-        while (transform.rotation.z < 1f && transform.position.y > GameManager.dBound)
+        while (_turret.transform.eulerAngles.z < 180f && transform.position.y > GameManager.dBound)
         {
-            transform.Rotate(Vector3.forward * Time.deltaTime * _rotationSpeed);
+            _turret.transform.Rotate(Vector3.forward * Time.deltaTime * _rotationSpeed);
+            Debug.Log($"Rotation: {_turret.transform.eulerAngles.z}");
 
-            Ray2D ramRay = new Ray2D(transform.position, -transform.up * _laserDistance);
+            Ray2D ramRay = new Ray2D(_turret.transform.position, -_turret.transform.up * _laserDistance);
             Debug.DrawRay(ramRay.origin, ramRay.direction * _laserDistance);
 
-            RaycastHit2D[] hitData = Physics2D.RaycastAll(ramRay.origin, ramRay.direction, _ramDistance);
+            if (Time.time <= _canFire)
+            {
+                // yield return new WaitForSeconds(_canFire - Time.time);
+                yield return new WaitForSeconds(0.1f);
+            }
+            float _delay = Random.Range(0f, 2f);
+            _canFire = Time.time + _fireRate + _delay;
+
+            RaycastHit2D[] hitData = Physics2D.RaycastAll(ramRay.origin, ramRay.direction, _laserDistance);
 
             foreach (RaycastHit2D hit in hitData)
             {
                 if (hit.collider.gameObject.tag == "Player")
                 {
                     Vector3 laserVector = new Vector3(0, -1.8f, 0f);
-                    laserVector = Vector3.RotateTowards(laserVector, transform.up, 5, 0);
+                    laserVector = Vector3.RotateTowards(laserVector, _turret.transform.up, 5, 0);
 
                     Laser enemyLaser = Instantiate(_laserPrefab, transform.position + laserVector, Quaternion.identity).GetComponent<Laser>();
                     enemyLaser.AssignEnemyLaser();
                     enemyLaser.SetVector(laserVector.normalized);
+                    Debug.Break();
                 }
             }
 
@@ -265,6 +288,10 @@ public class StandardEnemyScript : MonoBehaviour
                 break;
             case MovementStyle.Ram:
                 transform.Translate(Vector3.down * _enemyRamSpeed * Time.deltaTime, Space.World);
+                break;
+            case MovementStyle.NONE:
+                // Do nothing
+                transform.Translate(Vector3.up * 0f);
                 break;
         }
 
