@@ -44,7 +44,7 @@ public class StandardEnemyScript : MonoBehaviour
     }
 
     [SerializeField]
-    private GameObject _turret;
+    private GameObject _missilePrefab;
 
     [SerializeField]
     private GameObject _shieldVisualizer;
@@ -82,9 +82,6 @@ public class StandardEnemyScript : MonoBehaviour
     [SerializeField]
     private float _ramDistance = 4f;
 
-    [SerializeField]
-    private float _laserDistance = 8f;
-
     private int _shieldPower;
     
     private float _canMine;
@@ -94,12 +91,6 @@ public class StandardEnemyScript : MonoBehaviour
 
     [SerializeField]
     private GameObject _explosion;
-
-    [SerializeField]
-    private float _rotationSpeed = 45f;
-    private bool _shootingBack = false;
-
-    private Coroutine _turnAndShootCoroutine;
 
     // Start is called before the first frame update
     void Start()
@@ -160,62 +151,11 @@ public class StandardEnemyScript : MonoBehaviour
             Debug.Log("Player is null during HandleAttackFromRear");
         }
 
-        if (_player.transform.position.y > transform.position.y && !_shootingBack)
+        if (_player.transform.position.y > transform.position.y)
         {
-            // Wheel around and shoot?
-            _turnAndShootCoroutine = StartCoroutine(TurnAroundAndShoot());
+            Instantiate(_missilePrefab, transform.position + Vector3.up*2f, Quaternion.identity);
+            _attackStyle = AttackStyle.Ram;
         }
-    }
-
-    IEnumerator TurnAroundAndShoot()
-    {
-        _shootingBack = true;
-        bool sweepingRight = true;
-
-        Debug.Log("Entering turn around");
-        // Turn until reversed
-        while (_turret.transform.eulerAngles.z < 225f && transform.position.y > GameManager.dBound)
-        {
-            _turret.transform.Rotate(Vector3.forward * Time.deltaTime * _rotationSpeed);
-            Debug.Log($"Rotation: {_turret.transform.eulerAngles.z}");
-
-            Ray2D ramRay = new Ray2D(_turret.transform.position, -_turret.transform.up * _laserDistance);
-            Debug.DrawRay(ramRay.origin, ramRay.direction * _laserDistance);
-
-            if (Time.time >= _canFire)
-            {
-                RaycastHit2D[] hitData = Physics2D.RaycastAll(ramRay.origin, ramRay.direction, _laserDistance);
-
-                foreach (RaycastHit2D hit in hitData)
-                {
-                    if (hit.collider.gameObject.tag == "Player")
-                    {
-                        Debug.Log($"{hit.collider.gameObject.tag} {hit.collider.gameObject.name}");
-
-                        Vector3 laserVector = -_turret.transform.up * 2f;
-
-                        Laser enemyLaser = Instantiate(_laserPrefab, _turret.transform.position + laserVector, _turret.transform.rotation).GetComponent<Laser>();
-                        enemyLaser.AssignEnemyLaser();
-
-                        float _delay = Random.Range(0f, 2f);
-                        _canFire = Time.time + _fireRate + _delay;
-
-                        Debug.Break();
-                    }
-                }
-            }
-
-            yield return null;
-        }
-
-        Debug.Log("Exiting");
-        
-        // Rotate back
-        this.transform.rotation = Quaternion.identity;
-        Debug.Log(transform.rotation.eulerAngles);
-        _shootingBack = false;
-
-        yield break;
     }
 
     private void HandleMine()

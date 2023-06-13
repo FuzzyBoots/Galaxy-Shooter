@@ -1,7 +1,7 @@
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class HomingMissile : MonoBehaviour
+public abstract class HomingMissile : MonoBehaviour
 {
     [SerializeField]
     private float _missileSpeed = 4f;
@@ -13,12 +13,12 @@ public class HomingMissile : MonoBehaviour
     private float _explosionTime = 0f;
 
     [SerializeField]
-    private GameObject _enemyContainer;
+    protected GameObject _enemyContainer;
 
     [SerializeField] GameObject _explosion;
 
     [SerializeField]
-    private PlayerScript _playerRef;
+    protected PlayerScript _playerRef;
 
     private Transform _target;
     private Rigidbody2D _rigidBody;
@@ -30,21 +30,31 @@ public class HomingMissile : MonoBehaviour
 
         _playerRef = GameObject.Find("Player").GetComponent<PlayerScript>();
 
-        if (_playerRef == null )
+        if (_playerRef == null)
         {
             Debug.LogError("Could not find Player.");
         }
 
         _enemyContainer = GameObject.Find("EnemyContainer");
 
+        if (_enemyContainer == null)
+        {
+            Debug.LogError("Could not find Enemy Container.");
+        }
+
         _rigidBody = GetComponent<Rigidbody2D>();
+
+        if (_rigidBody == null)
+        {
+            Debug.LogError("Could not find Rigidbidy.");        
+        }
     }
 
     void FixedUpdate()
     {
         if (_target == null)
         {
-            _target = GetClosestEnemy();
+            _target = GetClosestTarget();
 
             _rigidBody.velocity = transform.up * _missileSpeed;
             return;
@@ -56,22 +66,7 @@ public class HomingMissile : MonoBehaviour
         _rigidBody.velocity = transform.up * _missileSpeed;
     }
 
-    private Transform GetClosestEnemy()
-    {
-        Transform _nearestEnemy = null;
-        float closestEnemyDist = Mathf.Infinity;
-        foreach (Transform enemy in _enemyContainer.transform.GetComponentsInChildren<Transform>())
-        {
-            float _dist = Vector3.Distance(transform.position, enemy.position);
-            if (_dist < closestEnemyDist)
-            {
-                _nearestEnemy = enemy;
-                closestEnemyDist = _dist;
-            }
-        }
-
-        return _nearestEnemy;
-    }
+    protected abstract Transform GetClosestTarget();    
 
     // Update is called once per frame
     void Update()

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5287907654842594376}
   - component: {fileID: 5287907654842594381}
   m_Layer: 0
-  m_Name: Missile
+  m_Name: EnemyMissile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,12 +165,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5287907654842594379}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d434d5aff70b7c4aaf54baab6a7b2d1, type: 3}
+  m_Script: {fileID: 11500000, guid: 77f8e6aab5d6b9046b6c9b25785cd18a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _missileSpeed: 7
+  _missileSpeed: 8
   _missileDuration: 5
-  _turningRadius: 90
+  _turningRadius: 180
   _enemyContainer: {fileID: 0}
   _explosion: {fileID: 4306520706123486587, guid: 974079cf29933a74da22c9faae19b7b0, type: 3}
   _playerRef: {fileID: 0}
