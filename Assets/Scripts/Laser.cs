@@ -7,14 +7,13 @@ public class Laser : MonoBehaviour
 
     [SerializeField]
     private float _destroyDistance = 10;
-    private Vector2 _directionVector = Vector2.up;
     [SerializeField]
     private bool _isEnemyLaser;
 
     // Update is called once per frame
     void Update()
     {
-        Move(_directionVector);
+        Move(Vector3.up);
     }
 
     private void Move(Vector2 direction)
@@ -30,14 +29,8 @@ public class Laser : MonoBehaviour
 
     public void AssignEnemyLaser()
     {
-        _directionVector = Vector2.down;
+        this.transform.Rotate(new Vector3(0, 0, 180));
         _isEnemyLaser= true;
-    }
-
-    public void SetVector(Vector2 directionVector)
-    {
-        this.transform.Rotate(Vector3.forward * Vector2.Angle(Vector2.up, directionVector));
-        _directionVector = directionVector;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

@@ -96,7 +96,7 @@ public class StandardEnemyScript : MonoBehaviour
     private GameObject _explosion;
 
     [SerializeField]
-    private float _rotationSpeed = 4f;
+    private float _rotationSpeed = 45f;
     private bool _shootingBack = false;
 
     private Coroutine _turnAndShootCoroutine;
@@ -174,7 +174,7 @@ public class StandardEnemyScript : MonoBehaviour
 
         Debug.Log("Entering turn around");
         // Turn until reversed
-        while (_turret.transform.eulerAngles.z < 180f && transform.position.y > GameManager.dBound)
+        while (_turret.transform.eulerAngles.z < 225f && transform.position.y > GameManager.dBound)
         {
             _turret.transform.Rotate(Vector3.forward * Time.deltaTime * _rotationSpeed);
             Debug.Log($"Rotation: {_turret.transform.eulerAngles.z}");
@@ -182,31 +182,30 @@ public class StandardEnemyScript : MonoBehaviour
             Ray2D ramRay = new Ray2D(_turret.transform.position, -_turret.transform.up * _laserDistance);
             Debug.DrawRay(ramRay.origin, ramRay.direction * _laserDistance);
 
-            if (Time.time <= _canFire)
+            if (Time.time >= _canFire)
             {
-                // yield return new WaitForSeconds(_canFire - Time.time);
-                yield return new WaitForSeconds(0.1f);
-            }
-            float _delay = Random.Range(0f, 2f);
-            _canFire = Time.time + _fireRate + _delay;
+                RaycastHit2D[] hitData = Physics2D.RaycastAll(ramRay.origin, ramRay.direction, _laserDistance);
 
-            RaycastHit2D[] hitData = Physics2D.RaycastAll(ramRay.origin, ramRay.direction, _laserDistance);
-
-            foreach (RaycastHit2D hit in hitData)
-            {
-                if (hit.collider.gameObject.tag == "Player")
+                foreach (RaycastHit2D hit in hitData)
                 {
-                    Vector3 laserVector = new Vector3(0, -1.8f, 0f);
-                    laserVector = Vector3.RotateTowards(laserVector, _turret.transform.up, 5, 0);
+                    if (hit.collider.gameObject.tag == "Player")
+                    {
+                        Debug.Log($"{hit.collider.gameObject.tag} {hit.collider.gameObject.name}");
 
-                    Laser enemyLaser = Instantiate(_laserPrefab, transform.position + laserVector, Quaternion.identity).GetComponent<Laser>();
-                    enemyLaser.AssignEnemyLaser();
-                    enemyLaser.SetVector(laserVector.normalized);
-                    Debug.Break();
+                        Vector3 laserVector = -_turret.transform.up * 2f;
+
+                        Laser enemyLaser = Instantiate(_laserPrefab, _turret.transform.position + laserVector, _turret.transform.rotation).GetComponent<Laser>();
+                        enemyLaser.AssignEnemyLaser();
+
+                        float _delay = Random.Range(0f, 2f);
+                        _canFire = Time.time + _fireRate + _delay;
+
+                        Debug.Break();
+                    }
                 }
             }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return null;
         }
 
         Debug.Log("Exiting");
