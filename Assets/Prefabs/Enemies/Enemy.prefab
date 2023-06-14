@@ -167,6 +167,8 @@ MonoBehaviour:
   _ramDistance: 4
   _minePrefab: {fileID: 8273447115671220284, guid: bd7b9bbd45321714a9dd5a56bd9db36c, type: 3}
   _explosion: {fileID: 4306520706123486587, guid: 974079cf29933a74da22c9faae19b7b0, type: 3}
+  _laserDistance: 8
+  _aversionFactor: 2
 --- !u!212 &908044383268923706
 SpriteRenderer:
   m_ObjectHideFlags: 0

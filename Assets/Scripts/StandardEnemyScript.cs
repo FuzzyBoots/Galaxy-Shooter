@@ -15,6 +15,7 @@ public class StandardEnemyScript : MonoBehaviour
         StraightDown,
         CaromDownL,
         CaromDownR,
+        DownWithAvoid,
         END_STANDARD,
         Ram,
         NONE,
@@ -67,6 +68,9 @@ public class StandardEnemyScript : MonoBehaviour
     [SerializeField]
     private static PlayerScript _player;
 
+    [SerializeField]
+    private static Transform _laserContainer;
+
     private Animator _animator;
 
     private bool _isDead = false;
@@ -95,6 +99,9 @@ public class StandardEnemyScript : MonoBehaviour
     [SerializeField]
     private float _laserDistance = 8f;
 
+    [SerializeField]
+    private float _aversionFactor = 1f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -105,6 +112,16 @@ public class StandardEnemyScript : MonoBehaviour
             if (_player == null)
             {
                 Debug.LogError("Could not find the player!");
+            }
+        }
+
+        if (_laserContainer == null)
+        {
+            _laserContainer = GameObject.Find("LaserContainer").transform;
+
+            if (_laserContainer == null)
+            {
+                Debug.LogError("Could not find the Laser Container!");
             }
         }
 
@@ -186,7 +203,7 @@ public class StandardEnemyScript : MonoBehaviour
         if (_player.transform.position.y > transform.position.y)
         {
             Instantiate(_missilePrefab, transform.position + Vector3.up*2f, Quaternion.identity);
-            _attackStyle = AttackStyle.Ram;
+            _attackStyle = GetRandomAttackStyle();
         }
     }
 
@@ -259,6 +276,30 @@ public class StandardEnemyScript : MonoBehaviour
                 break;
             case MovementStyle.Ram:
                 transform.Translate(Vector3.down * _enemyRamSpeed * Time.deltaTime, Space.World);
+                break;
+            case MovementStyle.DownWithAvoid:
+                Vector3 movementVector = Vector3.down;
+
+                if (!_isDead)
+                {
+                    // Detect lasers
+                    Laser[] lasers = _laserContainer.GetComponentsInChildren<Laser>();
+                    foreach (Laser laser in lasers)
+                    {
+                        Vector3 aversionVector = transform.position - laser.transform.position;
+                        // We'll use distance squared to model that further lasers will have little effect
+                        aversionVector /= aversionVector.magnitude * aversionVector.magnitude;
+
+                        aversionVector.y = 0f;
+                        aversionVector.z = 0f;
+
+                        movementVector += aversionVector * _aversionFactor;
+                    }
+
+                    movementVector.Normalize();
+                }
+
+                transform.Translate(movementVector * _enemySpeed * Time.deltaTime, Space.World);
                 break;
             case MovementStyle.NONE:
                 // Do nothing
