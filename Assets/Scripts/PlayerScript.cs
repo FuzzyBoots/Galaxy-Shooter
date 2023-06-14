@@ -137,7 +137,20 @@ public class PlayerScript : MonoBehaviour
     {
         CalculateMovement();
 
+        AttractPowerups();
+
         HandleLaser();
+    }
+
+    private void AttractPowerups()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Powerup.SetAttraction(true);
+        } else if (Input.GetKeyUp(KeyCode.C))
+        {
+            Powerup.SetAttraction(false);
+        }
     }
 
     private void HandleLaser()

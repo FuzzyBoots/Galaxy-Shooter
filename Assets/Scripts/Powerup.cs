@@ -8,7 +8,7 @@ using UnityEngine;
 
 [Serializable]
 public class Powerup : MonoBehaviour
-{    
+{
     enum PowerupEnum
     {
         TripleShot,
@@ -30,17 +30,36 @@ public class Powerup : MonoBehaviour
     private PowerupEnum _powerupIdent;
 
     [SerializeField] AudioClip _powerupClip;
+    static bool _attractionOn;
+
+    [SerializeField]
+    float _attractionSpeed = 5f;
+
+    private Transform _playerTransform;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        _playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        if (_playerTransform == null )
+        {
+            Debug.LogError("Could not find Player transform");
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        this.transform.Translate(Vector3.down * _powerupSpeed * Time.deltaTime);
+        Vector3 movement = Vector3.down * _powerupSpeed;
+
+        if (_attractionOn )
+        {
+            Vector3 attractionVector = _playerTransform.position - transform.position;
+            movement += attractionVector.normalized * _attractionSpeed;
+        }
+
+        this.transform.Translate(movement * Time.deltaTime);
 
         if (this.transform.position.y < -10)
         {
@@ -89,5 +108,9 @@ public class Powerup : MonoBehaviour
             
             Destroy(this.gameObject);
         }
+    }
+    internal static void SetAttraction(bool attractionOn)
+    {
+        _attractionOn = attractionOn;
     }
 }
