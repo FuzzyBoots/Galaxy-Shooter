@@ -875,7 +875,13 @@ MonoBehaviour:
     _spawnWeight: 2
   - _attackStyle: 3
     _movementStyle: 0
-    _spawnWeight: 5
+    _spawnWeight: 2
+  - _attackStyle: 3
+    _movementStyle: 1
+    _spawnWeight: 1
+  - _attackStyle: 3
+    _movementStyle: 2
+    _spawnWeight: 1
   _spawnEnemies: 0
   _waves: 020000000300000005000000080000000d000000
   _waveNumber: 0

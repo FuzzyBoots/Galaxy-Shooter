@@ -66,7 +66,7 @@ public abstract class HomingMissile : MonoBehaviour
         _rigidBody.velocity = transform.up * _missileSpeed;
     }
 
-    protected abstract Transform GetClosestTarget();    
+    protected abstract Transform GetClosestTarget();
 
     // Update is called once per frame
     void Update()

@@ -61,6 +61,12 @@ public class Laser : MonoBehaviour
             }
 
             Destroy(this.gameObject);
+        } else if (_isEnemyLaser && collision.tag == "Powerup")
+        {
+            // Enemies can destroy power-ups
+            Destroy(collision.gameObject);
+
+            Destroy(this.gameObject);
         }
     }
 }

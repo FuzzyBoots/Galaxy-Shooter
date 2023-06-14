@@ -92,6 +92,9 @@ public class StandardEnemyScript : MonoBehaviour
     [SerializeField]
     private GameObject _explosion;
 
+    [SerializeField]
+    private float _laserDistance = 8f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -120,7 +123,36 @@ public class StandardEnemyScript : MonoBehaviour
     {
         CalculateMovement();
 
+        HandlePowerupKill();
+
         HandleAttack();
+    }
+
+    private void HandlePowerupKill()
+    {
+        // First check for laser timing before expensive ray check
+        if (Time.time <= _canFire)
+        {
+            return;
+        }
+        
+        Ray2D laserRay = new Ray2D(transform.position + Vector3.down, Vector3.down);
+        Debug.DrawRay(laserRay.origin, laserRay.direction * _laserDistance);
+
+        RaycastHit2D[] hitData = Physics2D.RaycastAll(laserRay.origin, laserRay.direction, _laserDistance);
+
+        foreach (RaycastHit2D hit in hitData)
+        {
+            if (hit.collider.gameObject.tag == "Powerup")
+            {
+                float _delay = Random.Range(0f, 2f);
+                _canFire = Time.time + _fireRate + _delay;
+
+                Laser enemyLaser = Instantiate(_laserPrefab, transform.position + new Vector3(0f, -1.8f, 0f), Quaternion.identity).GetComponent<Laser>();
+
+                enemyLaser.AssignEnemyLaser();
+            }
+        }
     }
 
     private void HandleAttack()
