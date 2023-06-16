@@ -1,19 +1,21 @@
 using System;
 using System.Collections;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class PlayerScript : MonoBehaviour
 {
+    [Header("Speed")]
     [SerializeField]
     private float _speed = 3.5f;
-
     [SerializeField]
     private float _speedBoost = 1.8f;
     [SerializeField]
     private float _thrusterBoost = 1.5f;
 
+    [Header("Prefabs")]
     [SerializeField]
     private GameObject _laserPrefab;
     [SerializeField]
@@ -22,20 +24,28 @@ public class PlayerScript : MonoBehaviour
     private GameObject _firePrefab;
     [SerializeField]
     private GameObject _homingPrefab;
+    [SerializeField]
+    private GameObject _explosion;
+    [SerializeField]
+    private GameObject _lightningPrefab;
 
+
+    [Header("Timing")]
     [SerializeField]
     private float _fireRate = 0.5f;  // half a second
     private float _canFire = 0;
-    
+    private float _tripleShotTime = 0;
+    private float _speedTime = 0;
+    private float _homingTime = 0;
+    private float _reverseTime;
+    private float _lightningTime;
+
+    [Header("Player Variables")]
     [SerializeField]
     private int _lives = 3;
 
-    private float _tripleShotTime = 0;
-    private float _speedTime = 0;
-
     [SerializeField]
     private int _shieldPower = 0;
-
     [SerializeField]
     private int _maxShieldPower = 3;
 
@@ -45,55 +55,52 @@ public class PlayerScript : MonoBehaviour
     private int _maxAmmoCount = 50;
 
     [SerializeField]
+    private int _score = 0;
+
+    [Header("Visualizers")]
+    [SerializeField]
     private GameObject _shieldVisualizer;
     [SerializeField]
     private GameObject _thrusterVisualizer;
 
     private Transform _laserContainer;
-
     private Transform _fireContainer;
-
-    [SerializeField]
-    private int _score = 0;
 
     private bool _thrustersActive = false;
 
     UI_Manager _uiManager;
 
+    [Header("Sounds")]
     [SerializeField]
     private AudioClip _laserClip;
-
-    private AudioSource _audioSource;
-    
     [SerializeField]
-    private GameObject _explosion;
-
+    private AudioClip _missileClip;
+    [SerializeField]
+    private AudioClip _lightningClip;
     [SerializeField]
     private AudioClip _clickClip;
-    private float _homingTime;
 
+    private AudioSource _audioSource;
+
+    [Header("Truster variables")]    
     [SerializeField]
     private float _thrusterPower = 1;
-
     [SerializeField]
     private float _thrusterDepletion = 0.75f;
     [SerializeField]
     private float _thrusterRegeneration = 0.25f;
     private float _thrusterTimeout = 0;
-
     [SerializeField]
     private float _thrusterOverheatTimeout = 3f;
 
+    [Header("Camera")]
     [SerializeField]
     private Camera _camera;
-
     [SerializeField]
     private float _shakeTime = 0.5f;
     [SerializeField]
     private float _shakeAmount = 0.5f;
     
-    private float _reverseTime;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -159,23 +166,47 @@ public class PlayerScript : MonoBehaviour
         {
             if (_ammoCount > 0)
             {
-                GameObject laser;
+                bool alreadyFired = false;
                 if (Time.time < _homingTime)
                 {
-                    laser = Instantiate(_homingPrefab, this.transform.position + Vector3.up * 2f, Quaternion.identity);
+                    _audioSource.PlayOneShot(_missileClip);
+                    GameObject missile = Instantiate(_homingPrefab, this.transform.position + Vector3.up * 2f, Quaternion.identity);
+
+                    missile.transform.parent = _laserContainer;
+                    alreadyFired = true;
                 }
-                else if (Time.time < _tripleShotTime)
+                
+                if (Time.time < _lightningTime)
                 {
-                    laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+                    _audioSource.PlayOneShot(_lightningClip);
+                    GameObject lightningR = Instantiate(_lightningPrefab, this.transform.position + Vector3.right * 2f, Quaternion.identity);
+                    GameObject lightningL = Instantiate(_lightningPrefab, this.transform.position + Vector3.left * 2f, Quaternion.identity);
+                    lightningL.GetComponent<ChainLightning>()?.SwapDirection();
+
+                    lightningL.transform.parent = _laserContainer;
+                    lightningR.transform.parent = _laserContainer;
+                    alreadyFired = true;
                 }
-                else
+                
+                if (Time.time < _tripleShotTime)
                 {
-                    laser = Instantiate(_laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+                    _audioSource.PlayOneShot(_laserClip);
+                    GameObject laser = Instantiate(_tripleLaserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+
+                    laser.transform.parent = _laserContainer;
+                    alreadyFired = true;
                 }
-                laser.transform.parent = _laserContainer;
+                
+                if (!alreadyFired)
+                {
+                    _audioSource.PlayOneShot(_laserClip);
+                    GameObject laser = Instantiate(_laserPrefab, this.transform.position + Vector3.up * 0.9f, Quaternion.identity);
+
+                    laser.transform.parent = _laserContainer;
+                }
+
                 _canFire = Time.time + _fireRate;
 
-                _audioSource.PlayOneShot(_laserClip);
                 AdjustAmmo(-1);
             }
             else
@@ -359,5 +390,10 @@ public class PlayerScript : MonoBehaviour
     internal void TurnOnReverse(float powerupDuration)
     {
         _reverseTime = Time.time + powerupDuration;
+    }
+
+    internal void TurnOnLightning(float powerupDuration)
+    {
+        _lightningTime = Time.time + powerupDuration;
     }
 }

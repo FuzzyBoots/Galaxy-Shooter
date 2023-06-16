@@ -18,6 +18,7 @@ public class Powerup : MonoBehaviour
         Health,
         Homing,
         Reverse,
+        Lightning,
     }
 
     [SerializeField]
@@ -97,6 +98,9 @@ public class Powerup : MonoBehaviour
                     break;
                 case PowerupEnum.Reverse:
                     player?.TurnOnReverse(_powerupDuration);
+                    break;
+                case PowerupEnum.Lightning:
+                    player?.TurnOnLightning(_powerupDuration);
                     break;
                 default:
                     Debug.LogError("Unexpected Powerup type");
