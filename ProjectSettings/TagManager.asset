@@ -8,11 +8,12 @@ TagManager:
   - Enemy
   - Mine
   - Powerup
+  - Boss
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - MineLayer
   - Water
   - UI
   - Post Processing

@@ -30,25 +30,28 @@ public class GameManager : MonoBehaviour
         Vector2[] colliderpoints;
 
         EdgeCollider2D upperEdge = new GameObject("upperEdge").AddComponent<EdgeCollider2D>();
+        upperEdge.gameObject.layer = LayerMask.NameToLayer("MineLayer");
         colliderpoints = upperEdge.points;
         colliderpoints[0] = new Vector2(lBound, uBound);
         colliderpoints[1] = new Vector2(rBound, uBound);
         upperEdge.points = colliderpoints;
 
         EdgeCollider2D lowerEdge = new GameObject("lowerEdge").AddComponent<EdgeCollider2D>();
+        lowerEdge.gameObject.layer = LayerMask.NameToLayer("MineLayer");
         colliderpoints = lowerEdge.points;
         colliderpoints[0] = new Vector2(lBound, dBound);
         colliderpoints[1] = new Vector2(rBound, dBound);
         lowerEdge.points = colliderpoints;
 
         EdgeCollider2D leftEdge = new GameObject("leftEdge").AddComponent<EdgeCollider2D>();
+        leftEdge.gameObject.layer = LayerMask.NameToLayer("MineLayer");
         colliderpoints = leftEdge.points;
         colliderpoints[0] = new Vector2(lBound, dBound);
         colliderpoints[1] = new Vector2(lBound, uBound);
         leftEdge.points = colliderpoints;
 
         EdgeCollider2D rightEdge = new GameObject("rightEdge").AddComponent<EdgeCollider2D>();
-
+        rightEdge.gameObject.layer = LayerMask.NameToLayer("MineLayer");
         colliderpoints = rightEdge.points;
         colliderpoints[0] = new Vector2(rBound, dBound);
         colliderpoints[1] = new Vector2(rBound, uBound);
