@@ -28,10 +28,10 @@ public class ShieldScript : MonoBehaviour
 
         if (collision.CompareTag("Laser") ||
             collision.CompareTag("Missile") ||
-            collision.CompareTag("Lighning"))
+            collision.CompareTag("Lightning"))
         {
             _shieldStrength--;
-            Debug.Log("A hit!" + _shieldStrength);
+            
             UpdateShield();
         }
     }
@@ -39,7 +39,6 @@ public class ShieldScript : MonoBehaviour
     private void UpdateShield()
     {
         float shieldFraction = (float)_shieldStrength / _maxShieldStrength;
-        Debug.Log($"Fraction: {shieldFraction}");
         _spriteRenderer.color = new Color(1, 1, 1, shieldFraction);
     }
 

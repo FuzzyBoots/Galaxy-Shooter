@@ -186,7 +186,9 @@ public class BossScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Laser")
+        if (_enteringScene) { return; }
+
+        if (other.tag == "Laser" || other.tag == "Missile")
         {
             Destroy(other.gameObject);
 
@@ -214,7 +216,6 @@ public class BossScript : MonoBehaviour
 
     private void Die()
     {
-
         Destroy(gameObject);
     }
 }
