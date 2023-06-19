@@ -49,14 +49,34 @@ public class BossScript : MonoBehaviour
     float _enteringTime = 3f;
 
     [SerializeField]
-    GameObject _shield;
-
-    [SerializeField]
     float _shieldingIncreasePeriod = 1f;
 
     float _shieldTime;
 
     float _startTime;
+
+    private float _mineTime;
+
+    [SerializeField]
+    private float _mineInterval;
+
+    [Header("Prefabs")]
+    [SerializeField]
+    GameObject _shield;
+
+    [SerializeField]
+    private GameObject _minePrefab;
+
+    [SerializeField]
+    private GameObject _laserPrefab;
+
+    [SerializeField]
+    private GameObject _missilePrefab;
+    
+    private bool _mineRight;
+
+    [SerializeField]
+    private int _initialBehaviorIndex;
 
     public float StartTime { get { return _startTime; } set { 
             _startTime = value;
@@ -123,9 +143,24 @@ public class BossScript : MonoBehaviour
 
     private void HandleMines()
     {
-        Debug.Log("Mine!");
+        // Set out a bunch of mines
+        if (Time.time > _mineTime)
+        {
+            // Alternate left and right
+            GameObject mine = Instantiate(_minePrefab, transform.position + 
+                new Vector3(_mineRight ? -5f : 5f, -1f, 0), Quaternion.identity);
 
-        // Usual logic for delaying firing (deploy lots?)
+            Vector2 velocity = new Vector2((_mineRight ? -1 : 1), -0.1f);
+            if (_mineRight == _movingRight)
+            {
+                velocity.x += _enemySpeed;
+            }
+            mine.GetComponent<Rigidbody2D>().velocity = velocity;
+            
+            _mineRight = !_mineRight;
+
+            _mineTime = Time.time + _mineInterval;
+        }
     }
 
     private void HandleLasers()
@@ -160,7 +195,7 @@ public class BossScript : MonoBehaviour
             if (Time.time - StartTime > _enteringTime)
             {
                 _enteringScene = false;
-                _stateIndex = Random.Range(0, _bossBehavior.Length);
+                _stateIndex = /*Random.Range(0, _bossBehavior.Length)*/ _initialBehaviorIndex;
                 StartTime = Time.time;
             }
             return;

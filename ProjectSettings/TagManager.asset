@@ -9,6 +9,8 @@ TagManager:
   - Mine
   - Powerup
   - Boss
+  - Missile
+  - Lightning
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - Water
   - UI
   - Post Processing
-  - 
+  - CollisionLayer
   - 
   - 
   - 
