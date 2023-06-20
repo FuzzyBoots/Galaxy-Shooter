@@ -22,72 +22,71 @@ public class BossScript : MonoBehaviour
         public float duration;
     }
 
+    [Header("Behavior")]
+    [SerializeField]
+    private int _initialBehaviorIndex;
+
     [SerializeField]
     BossState[] _bossBehavior;
-
-    bool _enteringScene = true;
 
     [SerializeField]
     int _stateIndex = 0;
 
+    [SerializeField]
+    bool _movingRight = true;
+
+    bool _enteringScene = true;
+
+    Vector3 _initialEnteringPosition = new Vector3(0f, 5.5f, -10f);
+    Vector3 _finalEnteringPosition = new Vector3(0f, 2.5f, 0f);
+
+    [SerializeField]
+    float _enteringTime = 3f;
+
+    [Header("Parameters")]
     [SerializeField] 
     float _enemySpeed = 10f;
 
     [SerializeField]
     int _health = 32;
 
-    [SerializeField]
-    bool _movingRight = true;
+    float _startTime;
 
-    [SerializeField]
-    Vector3 _initialEnteringPosition = new Vector3(0f, 5.5f, -10f);
+    float _shieldTime;
+    float _mineTime;
+    private float _missileTime;
 
-    [SerializeField]
-    Vector3 _finalEnteringPosition = new Vector3(0f, 2.5f, 0f);
+    private bool _mineRight;
 
-    [SerializeField]
-    float _enteringTime = 3f;
 
     [SerializeField]
     float _shieldingIncreasePeriod = 1f;
 
-    float _shieldTime;
-
-    float _startTime;
-
-    private float _mineTime;
+    [SerializeField]
+    float _mineInterval;
 
     [SerializeField]
-    private float _mineInterval;
-
+    float _missileInterval;
+    
     [Header("Prefabs")]
     [SerializeField]
     GameObject _shield;
 
     [SerializeField]
-    private GameObject _minePrefab;
+    GameObject _minePrefab;
 
     [SerializeField]
-    private GameObject _laserPrefab;
+    GameObject _laserPrefab;
 
     [SerializeField]
-    private GameObject _missilePrefab;
+    GameObject _missilePrefab;
     
-    private bool _mineRight;
-
-    [SerializeField]
-    private int _initialBehaviorIndex;
-
-    public float StartTime { get { return _startTime; } set { 
-            _startTime = value;
-        } }
-
     // Start is called before the first frame update
     void Start()
     {
         // Initial position
         transform.position = _initialEnteringPosition;
-        StartTime = Time.time;
+        _startTime = Time.time;
 
         if (_shield == null )
         {
@@ -109,11 +108,11 @@ public class BossScript : MonoBehaviour
 
         BossState _curState = _bossBehavior[_stateIndex];
         
-        if (Time.time - StartTime > _curState.duration)
+        if (Time.time - _startTime > _curState.duration)
         {
             _stateIndex = (_stateIndex + 1) % _bossBehavior.Length;
             Debug.Log("Behavior switch " + _stateIndex);
-            StartTime = Time.time;
+            _startTime = Time.time;
         }
         
         switch (_curState.state)
@@ -135,10 +134,16 @@ public class BossScript : MonoBehaviour
 
     private void HandleMissiles()
     {
-        Debug.Log("Missiles!");
+        if (Time.time > _missileTime)
+        {
+            GameObject missileL = Instantiate(_missilePrefab, transform.position +
+                new Vector3(5.6f, 1.7f, 0), Quaternion.Euler(0,0,-45f));
+            
+            GameObject missileR = Instantiate(_missilePrefab, transform.position +
+                new Vector3(-5.6f, 1.7f, 0), Quaternion.Euler(0, 0, 45f));
 
-        // Usual logic for delaying firing
-        // Multiple missiles?
+            _missileTime = Time.time + _missileInterval;
+        }
     }
 
     private void HandleMines()
@@ -181,22 +186,17 @@ public class BossScript : MonoBehaviour
         // Sound cue?
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.Log("Collided with:" + collision.gameObject.name);
-    }
-
     private void HandleMovement()
     {
         if (_enteringScene)
         {
-            transform.position = Vector3.Slerp(_initialEnteringPosition, _finalEnteringPosition, (Time.time - StartTime) / _enteringTime);
+            transform.position = Vector3.Slerp(_initialEnteringPosition, _finalEnteringPosition, (Time.time - _startTime) / _enteringTime);
 
-            if (Time.time - StartTime > _enteringTime)
+            if (Time.time - _startTime > _enteringTime)
             {
                 _enteringScene = false;
                 _stateIndex = /*Random.Range(0, _bossBehavior.Length)*/ _initialBehaviorIndex;
-                StartTime = Time.time;
+                _startTime = Time.time;
             }
             return;
         }

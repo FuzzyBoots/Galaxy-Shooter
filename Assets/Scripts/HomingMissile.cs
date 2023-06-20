@@ -108,6 +108,15 @@ public abstract class HomingMissile : MonoBehaviour
 
                 Destroy(this.gameObject);
                 break;
+            case "Laser":
+            case "Missile":
+                Destroy(collision.gameObject);
+
+                Instantiate(_explosion, this.transform.position, Quaternion.identity);
+
+                Destroy(this.gameObject);
+                break;
+
         }
     }
 }
