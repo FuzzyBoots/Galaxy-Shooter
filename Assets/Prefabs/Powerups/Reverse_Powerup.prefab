@@ -85,7 +85,7 @@ SpriteRenderer:
   m_Size: {x: 5.12, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!58 &5483567332355888468
@@ -140,7 +140,7 @@ MonoBehaviour:
   _powerupSpeed: 3
   _powerupDuration: 3
   _powerupIdent: 6
-  _powerupClip: {fileID: 8300000, guid: 212e428be57ad534aa7980cf9e3c4cc0, type: 3}
+  _powerupClip: {fileID: 8300000, guid: b1ada0964a2ca5848a5bf35a1392ede2, type: 3}
   _attractionSpeed: 5
 --- !u!95 &5035278173537259797
 Animator:
