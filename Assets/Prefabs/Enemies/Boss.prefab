@@ -132,6 +132,7 @@ MonoBehaviour:
   _minePrefab: {fileID: 8273447115671220284, guid: bd7b9bbd45321714a9dd5a56bd9db36c, type: 3}
   _laserPrefab: {fileID: 1335631992657288000, guid: 7b5d1995fd793e34f841e30e4f1f690b, type: 3}
   _missilePrefab: {fileID: 5287907654842594379, guid: a2886c7373911524f8b37dbe8b9ab025, type: 3}
+  _explosion: {fileID: 4688366796816071956, guid: 74a6aa5d3dd4b5940958ad50c86662f5, type: 3}
   _rotationOffset: 0
 --- !u!60 &3783044509137895531
 PolygonCollider2D:

@@ -9,8 +9,9 @@ TagManager:
   - Mine
   - Powerup
   - Boss
-  - Missile
+  - Undefined
   - Lightning
+  - Missile
   layers:
   - Default
   - TransparentFX

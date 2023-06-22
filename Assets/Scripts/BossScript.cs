@@ -105,11 +105,11 @@ public class BossScript : MonoBehaviour
 
     [SerializeField]
     GameObject _missilePrefab;
-    
-    private Coroutine _laserCoroutine;
 
     [SerializeField]
-    private float _rotationOffset;
+    GameObject _explosion;
+    
+    private Coroutine _laserCoroutine;
 
 
     // Start is called before the first frame update
@@ -229,7 +229,7 @@ public class BossScript : MonoBehaviour
             float angleSlice = _laserArc / (_laserNumber - 1);
             for (int index = 0; index < _laserNumber; ++index)
             {
-                float angle = _rotationOffset + index * angleSlice - _laserArc / 2;
+                float angle = index * angleSlice - _laserArc / 2;
 
                 GameObject laser = Instantiate(_laserPrefab, transform.position + new Vector3(0, -4.75f, 0), Quaternion.Euler(0, 0, angle));
                 Laser laserScript = laser.GetComponent<Laser>();
@@ -310,7 +310,6 @@ public class BossScript : MonoBehaviour
     public void Damage()
     {
         _health--;
-        Debug.Log("Damaged: " + _health);
 
         // Change appearance?
         // Update boss healthbar
@@ -324,6 +323,7 @@ public class BossScript : MonoBehaviour
 
     private void Die()
     {
+        Instantiate(_explosion, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 }
