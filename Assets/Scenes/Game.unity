@@ -931,6 +931,8 @@ MonoBehaviour:
     _spawnWeight: 5
   - _powerup: {fileID: 4966135127556288867, guid: f06940b1b09f5e745996af41db5bffdc, type: 3}
     _spawnWeight: 2
+  - _powerup: {fileID: 1645683774847819264, guid: 44bce2b36488f1b4ca56f1bacc531dea, type: 3}
+    _spawnWeight: 3
   _enemies:
   - _attackStyle: 0
     _movementStyle: 0
