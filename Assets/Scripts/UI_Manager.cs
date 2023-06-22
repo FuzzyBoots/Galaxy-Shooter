@@ -49,12 +49,19 @@ public class UI_Manager : MonoBehaviour
     [SerializeField]
     TMP_Text _winText;
 
+    [SerializeField]
+    RawImage _healthBarImage;
+    
+    [SerializeField]
+    GameObject _healthBar;
+
     // Start is called before the first frame update
     void Start()
     {
         _scoreText.text = "Score: " + 0;
         _gameOverText.gameObject.SetActive(false);
         _reloadText.gameObject.SetActive(false);
+        SetBossHealthEnabled(false);
     }
 
     // Update is called once per frame
@@ -160,5 +167,20 @@ public class UI_Manager : MonoBehaviour
     public void SetOverheatVisible(bool visible)
     {
         _overheatText.gameObject.SetActive(visible);
+    }
+
+    public void SetBossHealthEnabled(bool value)
+    {
+        _healthBar.SetActive(value);
+    }
+
+    public void SetBossMaxHealth(int value)
+    {
+        _healthBar.GetComponent<HealthBar>().SetMaxHealth(value);
+    }
+
+    public void SetBossHealth(int value)
+    {
+        _healthBar.GetComponent<HealthBar>().SetHealth(value);
     }
 }

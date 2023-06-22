@@ -33,6 +33,11 @@ public class Laser : MonoBehaviour
         _isEnemyLaser= true;
     }
 
+    public void SetSpeed(float speed)
+    {
+        _laserSpeed = speed;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player" && _isEnemyLaser)

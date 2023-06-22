@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public class BossScript : MonoBehaviour
@@ -50,15 +52,28 @@ public class BossScript : MonoBehaviour
     [SerializeField]
     int _health = 32;
 
+    [SerializeField]
+    public int Health { 
+        get { return _health; }
+        set { 
+            _health = value; 
+            _uiManager.SetBossHealth(value); 
+        } 
+    }
+
     float _startTime;
 
     float _shieldTime;
     float _mineTime;
     private float _missileTime;
+    private float _laserTime;
 
     private bool _mineRight;
 
+    UI_Manager _uiManager; 
 
+
+    [Header("Behavior Parameters")]
     [SerializeField]
     float _shieldingIncreasePeriod = 1f;
 
@@ -67,7 +82,17 @@ public class BossScript : MonoBehaviour
 
     [SerializeField]
     float _missileInterval;
-    
+
+    [Header("Lasers")]
+    [SerializeField]
+    private float _laserInterval = 1;
+    [SerializeField]
+    private float _laserArc = 90;
+    [SerializeField]
+    private int _laserNumber = 4;
+    [SerializeField]
+    private float _laserDelay = 0.1f;
+
     [Header("Prefabs")]
     [SerializeField]
     GameObject _shield;
@@ -81,6 +106,12 @@ public class BossScript : MonoBehaviour
     [SerializeField]
     GameObject _missilePrefab;
     
+    private Coroutine _laserCoroutine;
+
+    [SerializeField]
+    private float _rotationOffset;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -92,6 +123,8 @@ public class BossScript : MonoBehaviour
         {
             Debug.LogError("No shield script set!");
         }
+
+        _uiManager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
     }
 
     // Update is called once per frame
@@ -110,8 +143,14 @@ public class BossScript : MonoBehaviour
         
         if (Time.time - _startTime > _curState.duration)
         {
+            if (_curState.state == BossStateEnum.FiringLasers)
+            {
+                // Cancel the coroutine
+                StopCoroutine(_laserCoroutine);
+            }
             _stateIndex = (_stateIndex + 1) % _bossBehavior.Length;
             Debug.Log("Behavior switch " + _stateIndex);
+            
             _startTime = Time.time;
         }
         
@@ -134,46 +173,74 @@ public class BossScript : MonoBehaviour
 
     private void HandleMissiles()
     {
-        if (Time.time > _missileTime)
-        {
-            GameObject missileL = Instantiate(_missilePrefab, transform.position +
-                new Vector3(5.6f, 1.7f, 0), Quaternion.Euler(0,0,-45f));
-            
-            GameObject missileR = Instantiate(_missilePrefab, transform.position +
-                new Vector3(-5.6f, 1.7f, 0), Quaternion.Euler(0, 0, 45f));
+        if (Time.time <= _missileTime) { return; }
 
-            _missileTime = Time.time + _missileInterval;
-        }
+        GameObject missileL = Instantiate(_missilePrefab, transform.position +
+            new Vector3(5.6f, 1.7f, 0), Quaternion.Euler(0,0,-45f));
+            
+        GameObject missileR = Instantiate(_missilePrefab, transform.position +
+            new Vector3(-5.6f, 1.7f, 0), Quaternion.Euler(0, 0, 45f));
+
+        _missileTime = Time.time + _missileInterval;
     }
 
     private void HandleMines()
     {
         // Set out a bunch of mines
-        if (Time.time > _mineTime)
+        if (Time.time <= _mineTime) { return; }
+        
+        // Alternate left and right
+        GameObject mine = Instantiate(_minePrefab, transform.position + 
+            new Vector3(_mineRight ? -5f : 5f, -1f, 0), Quaternion.identity);
+
+        Vector2 velocity = new Vector2((_mineRight ? -1 : 1), -0.1f);
+        if (_mineRight == _movingRight)
         {
-            // Alternate left and right
-            GameObject mine = Instantiate(_minePrefab, transform.position + 
-                new Vector3(_mineRight ? -5f : 5f, -1f, 0), Quaternion.identity);
-
-            Vector2 velocity = new Vector2((_mineRight ? -1 : 1), -0.1f);
-            if (_mineRight == _movingRight)
-            {
-                velocity.x += _enemySpeed;
-            }
-            mine.GetComponent<Rigidbody2D>().velocity = velocity;
-            
-            _mineRight = !_mineRight;
-
-            _mineTime = Time.time + _mineInterval;
+            velocity.x += _enemySpeed;
         }
+        mine.GetComponent<Rigidbody2D>().velocity = velocity;
+            
+        _mineRight = !_mineRight;
+
+        _mineTime = Time.time + _mineInterval;
+        
     }
 
     private void HandleLasers()
     {
-        Debug.Log("Lasers!");
-
         // Usual logic for delaying firing
-        // Multiple lasers?
+        if (Time.time <= _laserTime) { return; }
+
+        // Let's start a co-routine to fire in an arc.
+        _laserCoroutine = StartCoroutine(FireLaserSpray());
+
+        _laserTime = Time.time + _laserInterval;
+    }
+
+    IEnumerator FireLaserSpray()
+    {
+        if (_laserNumber <= 1)
+        {
+            GameObject laser = Instantiate(_laserPrefab, transform.position + new Vector3(0, -5, 0), Quaternion.identity);
+            laser.GetComponent<Laser>().AssignEnemyLaser();
+        }
+        else
+        {
+            float angleSlice = _laserArc / (_laserNumber - 1);
+            for (int index = 0; index < _laserNumber; ++index)
+            {
+                float angle = _rotationOffset + index * angleSlice - _laserArc / 2;
+
+                GameObject laser = Instantiate(_laserPrefab, transform.position + new Vector3(0, -4.75f, 0), Quaternion.Euler(0, 0, angle));
+                Laser laserScript = laser.GetComponent<Laser>();
+                laserScript.AssignEnemyLaser();
+                laserScript.SetSpeed(5);
+
+                yield return new WaitForSeconds(_laserDelay);
+            }
+        }
+
+        yield return null;
     }
 
     private void HandleShield()
@@ -195,8 +262,12 @@ public class BossScript : MonoBehaviour
             if (Time.time - _startTime > _enteringTime)
             {
                 _enteringScene = false;
-                _stateIndex = /*Random.Range(0, _bossBehavior.Length)*/ _initialBehaviorIndex;
+                _stateIndex = Random.Range(0, _bossBehavior.Length);
                 _startTime = Time.time;
+
+                _uiManager.SetBossHealthEnabled(true);
+                _uiManager.SetBossMaxHealth(_health);
+                _uiManager.SetBossHealth(_health);
             }
             return;
         }
@@ -239,9 +310,11 @@ public class BossScript : MonoBehaviour
     public void Damage()
     {
         _health--;
+        Debug.Log("Damaged: " + _health);
 
         // Change appearance?
         // Update boss healthbar
+        _uiManager?.SetBossHealth(_health);
 
         if (_health < 1)
         {

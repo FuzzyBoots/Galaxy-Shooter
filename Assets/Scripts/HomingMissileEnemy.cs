@@ -6,6 +6,12 @@ public class HomingMissileEnemy : HomingMissile
 {
     protected override Transform GetClosestTarget()
     {
-        return _playerRef.transform;
+        if (_playerRef != null)
+        {
+            return _playerRef.transform;
+        }
+        else { 
+            return null; 
+        }
     }
 }

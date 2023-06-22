@@ -56,6 +56,9 @@ public class SpawnManager : MonoBehaviour
 
     [SerializeField]
     private float _percentShield = 0.2f;
+    
+    [SerializeField]
+    private GameObject _bossPrefab;
 
     void Start()
     {
@@ -147,6 +150,15 @@ public class SpawnManager : MonoBehaviour
                 yield return new WaitForSeconds(0.25f);
             }
             Debug.Log("All dead!");
+        }
+
+        _uiManager.ShowWaveText(_waveNumber + 2);
+        yield return new WaitForSeconds(1f);
+
+        GameObject boss = Instantiate(_bossPrefab);
+        while (boss != null)
+        {
+            yield return new WaitForSeconds(0.25f);
         }
 
         _uiManager.DisplayGameOver(true);

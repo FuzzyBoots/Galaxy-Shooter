@@ -30,7 +30,10 @@ public class ShieldScript : MonoBehaviour
             collision.CompareTag("Missile") ||
             collision.CompareTag("Lightning"))
         {
+            Debug.Log($"Hit by {collision.tag}");
             _shieldStrength--;
+
+            Destroy(collision.gameObject);
             
             UpdateShield();
         }
