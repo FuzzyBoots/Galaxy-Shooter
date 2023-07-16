@@ -11,7 +11,7 @@ public class SpawnManager : MonoBehaviour
     public class PowerUpEntry
     {
         public GameObject _powerup;
-        public float _spawnWeight = 1;
+        public int _spawnWeight = 1;
     }
     
     [System.Serializable]
@@ -19,7 +19,7 @@ public class SpawnManager : MonoBehaviour
     {
         public StandardEnemyScript.AttackStyle _attackStyle;
         public StandardEnemyScript.MovementStyle _movementStyle;
-        public float _spawnWeight = 1;
+        public int _spawnWeight = 1;
     }
 
     [SerializeField]
@@ -49,8 +49,8 @@ public class SpawnManager : MonoBehaviour
     private bool _spawnPowerups = true;
     private bool _powerupSpawnCoroutineActive = false;
 
-    private List<GameObject> _powerupList;
-    private List<EnemyEntry> _enemyList;
+    private WeightedList<GameObject> _powerupList;
+    private WeightedList<EnemyEntry> _enemyList;
 
     private UI_Manager _uiManager;
 
@@ -71,25 +71,19 @@ public class SpawnManager : MonoBehaviour
 
     private void BuildPowerupList()
     {
-        _powerupList = new List<GameObject>();
+        _powerupList = new WeightedList<GameObject>();
         foreach (PowerUpEntry entry in _powerups)
         {
-            for (int i = 0; i < entry._spawnWeight; ++i)
-            {
-                _powerupList.Add(entry._powerup);
-            }
+            _powerupList.AddItem(entry._powerup, entry._spawnWeight);
         }
     }
 
     private void BuildEnemyList()
     {
-        _enemyList = new List<EnemyEntry>();
+        _enemyList = new WeightedList<EnemyEntry>();
         foreach (EnemyEntry entry in _enemies)
         {
-            for (int i = 0; i < entry._spawnWeight; ++i)
-            {
-                _enemyList.Add(entry);
-            }
+            _enemyList.AddItem(entry, entry._spawnWeight);
         }
     }
 
@@ -120,8 +114,7 @@ public class SpawnManager : MonoBehaviour
                 }
                 Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
 
-                int index = Random.Range(0, _enemyList.Count());
-                EnemyEntry entry = _enemyList[index];
+                EnemyEntry entry = _enemyList.getItem();
 
                 GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
                 enemy.transform.parent = _enemyContainer.transform;
@@ -178,9 +171,9 @@ public class SpawnManager : MonoBehaviour
         while (_spawnPowerups)
         {
             Vector3 spawnPosition = new Vector3(Random.Range(GameManager.lBound, GameManager.rBound), GameManager.uBound, 0);
-            int index = Random.Range(0, _powerupList.Count());
             
-            GameObject randomPowerup = _powerupList[index];
+            GameObject randomPowerup = _powerupList.getItem();
+            
             Instantiate(randomPowerup, spawnPosition, Quaternion.identity);
 
             yield return new WaitForSeconds(Random.Range(3f, 7f));
