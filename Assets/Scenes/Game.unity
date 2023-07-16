@@ -916,7 +916,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyInterval: 2
   enemyPrefab: {fileID: 7858231441180416003, guid: 4f1940df18928d8449ceaf255aeaf88c, type: 3}
-  _powerups:
+   _powerups:
   - _powerup: {fileID: 5483567332355888473, guid: f163ee708184fe843b4a6c0c80d81bed, type: 3}
     _spawnWeight: 5
   - _powerup: {fileID: 5483567332355888473, guid: 55623cd6c7046544b9f99e213707fabc, type: 3}
